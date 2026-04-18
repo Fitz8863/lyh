@@ -1,0 +1,32 @@
+device:
+  device_id: "RK3588"
+
+mqtt:
+  server: "fnas:1883"
+  topic: "RK3588/info"
+  publish_interval: 1
+
+camera:
+  - id: "001"
+    location: "校园大门"
+    rtsp_url: "rtsp://fnas:8554/rk3588"
+    http_url: "http://fnas:8889/rk3588"
+    voice_rtsp_url: "rtsp://fnas:8554/rk3588/voice"
+    voice_http_url: "http://fnas:8888/rk3588/voice"
+    device: "/dev/video0"
+    width: 1920
+    height: 1080
+    fps: 30
+
+
+  # - id: "002"
+  #   location: "校园后门"
+  #   rtsp_url: "rtsp://fnas:8554/rk35882"
+  #   http_url: "http://fnas:8889/rk35882"
+    # voice_rtsp_url: "rtsp://fnas:8554/rk35882/voice"
+    # voice_http_url: "http://fnas:8889/rk35882/voice"
+  #   device: "/dev/video2"
+  #   width: 1920
+  #   height: 1080
+  #   fps: 30
+

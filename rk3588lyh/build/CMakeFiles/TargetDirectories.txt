@@ -1,0 +1,3 @@
+/home/orangepi/projects/tang/rk3588/build/CMakeFiles/main.dir
+/home/orangepi/projects/tang/rk3588/build/CMakeFiles/edit_cache.dir
+/home/orangepi/projects/tang/rk3588/build/CMakeFiles/rebuild_cache.dir
