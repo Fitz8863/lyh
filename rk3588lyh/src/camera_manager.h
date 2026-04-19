@@ -2,37 +2,42 @@
 #define CAMERA_MANAGER_H
 
 #include <memory>
-#include <vector>
 #include <string>
 #include "camera_status.h"
 #include "capture_thread.h"
-#include "voice_capture_thread.h"
+
+class YoloInferenceThread;  // 前向声明
 
 class CameraManager {
 public:
-    CameraManager() = default;
+    CameraManager();
     ~CameraManager();
-
-    void AddCamera(const std::string& camera_id, const std::string& location,
+    
+    void SetCamera(const std::string& camera_id, const std::string& location,
                    const std::string& http_url, const std::string& rtsp_url,
-                   const std::string& voice_rtsp_url, const std::string& voice_http_url,
                    const std::string& device,
-                   int width, int height, int fps);
-
-    void StopAll();
-
-    std::vector<std::reference_wrapper<CameraStatus>> GetAllStatuses();
-
-    size_t Size() const { return cameras_.size(); }
-
+                   int width, int height, int fps,
+                   // YOLO参数 (可选)
+                   const std::string& model_path = "",
+                   int thread_num = 3,
+                   float conf_threshold = 0.25f,
+                   float nms_threshold = 0.45f);
+    
+    void Stop();
+    
+    CameraStatus* GetStatus() { return status_.get(); }
+    bool IsRunning() const { return capture_ && capture_->IsRunning(); }
+    
+    // 注入Publisher到YOLO线程 (延迟初始化)
+    void SetPublisher(PublisherThread* publisher);
+    
+    // 获取YOLO线程指针 (用于传递Publisher)
+    YoloInferenceThread* GetYoloThread() { return yolo_thread_.get(); }
+    
 private:
-    struct CameraContext {
-        std::unique_ptr<CameraStatus> status;
-        std::unique_ptr<CaptureThread> capture;
-        std::unique_ptr<VoiceCaptureThread> voice_capture;
-    };
-
-    std::vector<CameraContext> cameras_;
+    std::unique_ptr<CameraStatus> status_;
+    std::unique_ptr<CaptureThread> capture_;
+    std::unique_ptr<YoloInferenceThread> yolo_thread_;  // YOLO推理线程
 };
 
 #endif
