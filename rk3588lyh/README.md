@@ -13,7 +13,6 @@
 - **📡 MQTT 状态上报** — 周期性向 Broker 发布设备与各摄像头运行状态
 - **📖 YAML 配置驱动** — 所有摄像头参数（设备路径、分辨率、帧率、推流地址等）通过 `config.yaml` 配置，无需重新编译
 - **🔧 摄像头管理器架构** — CameraManager 统一管理多个摄像头的采集线程与状态，支持优雅启停
-- **🎙️ 音频采集支持** — 预留 VoiceCaptureThread 模块，支持音频流同步采集与推流
 
 ---
 
@@ -42,11 +41,9 @@ rk3588/
 │
 ├── src/
 │   ├── main.cc                 # 主程序入口（加载配置、初始化摄像头、启动 MQTT 发布器）
-│   ├── camera_manager.h / .cc  # 摄像头管理器（多线程管理多个摄像头实例）
-│   ├── camera_status.h / .cc   # 摄像头运行状态结构体与状态管理
+│   ├── camera_status.h / .cc   # 摄像头运行状态结构体
 │   ├── capture_thread.h / .cc  # 视频采集线程（V4L2 → OpenCV → GStreamer 推流）
-│   ├── publisher_thread.h / .cc# MQTT 状态发布线程（周期性上报设备与摄像头状态）
-│   ├── voice_capture_thread.h / .cc # 音频采集线程（预留模块）
+│   ├── publisher_thread.h / .cc# MQTT 状态发布线程（周期性上报摄像头状态）
 │   ├── global_running.h        # 全局信号控制（SIGINT/SIGTERM 优雅退出）
 │   └── before.cc               # （备用测试代码）
 │
@@ -105,8 +102,6 @@ camera:
     location: "校园大门"        # 安装位置
     rtsp_url: "rtsp://server:8554/rk3588"          # RTSP 推流地址（MediaMTX）
     http_url: "http://server:8889/rk3588"          # HTTP/WHIP 推流地址
-    voice_rtsp_url: "rtsp://server:8554/rk3588/voice"     # 音频 RTSP 地址
-    voice_http_url: "http://server:8888/rk3588/voice"     # 音频 HTTP 地址
     device: "/dev/video0"      # V4L2 设备路径
     width: 1920                # 分辨率宽
     height: 1080               # 分辨率高
@@ -196,8 +191,7 @@ rtspclientsink location=rtsp://server:8554/rk3588
 | `fps` | 采集帧率 |
 | `rtsp_url` | 视频 RTSP 推流目标地址 |
 | `http_url` | 视频 HTTP/WHIP 推流目标地址 |
-| `voice_rtsp_url` | 音频 RTSP 推流目标地址 |
-| `voice_http_url` | 音频 HTTP 推流目标地址 |
+
 
 ---
 
@@ -207,19 +201,13 @@ rtspclientsink location=rtsp://server:8554/rk3588
 
 ```
 main()
-├── CameraManager
-│   ├── CameraContext[0]
-│   │   ├── CaptureThread (视频采集 + GStreamer 推流)
-│   │   └── VoiceCaptureThread (音频采集, 预留)
-│   └── CameraContext[1] ...
-│
+├── CaptureThread (视频采集 + GStreamer 推流)
 └── PublisherThread (MQTT 状态上报)
 ```
 
-- **主线程**：加载配置、初始化管理器、等待退出信号
-- **CaptureThread**：每个摄像头一个独立线程，OpenCV 读取 → GStreamer 编码推流
-- **VoiceCaptureThread**：音频采集线程（预留模块）
-- **PublisherThread**：独立线程，按 `publish_interval` 周期性发布所有摄像头状态到 MQTT Broker
+- **主线程**：加载配置、创建摄像头状态和采集线程、启动发布器、等待退出信号
+- **CaptureThread**：独立线程，OpenCV 读取摄像头 → GStreamer 硬件编码 → RTSP 推流
+- **PublisherThread**：独立线程，按 `publish_interval` 周期性发布摄像头状态到 MQTT Broker
 - **信号处理**：通过 `SIGINT`/`SIGTERM` 设置 `g_running = false`，优雅停止所有线程
 
 ### CameraManager

@@ -19,12 +19,7 @@ struct CameraStatus {
     std::string http_url;
     std::string rtsp_url;
     
-    // 检测统计
-    std::atomic<int> detection_count;    // 当前帧检测到的目标数
-    std::atomic<int> total_detections;   // 累计检测总数
-    
-    CameraStatus() : fps(0.0f), width(1920), height(1080), running(true), 
-                     timestamp_ns(0), detection_count(0), total_detections(0) {}
+    CameraStatus() : fps(0.0f), width(1920), height(1080), running(true), timestamp_ns(0) {}
     
     void UpdateFps(float new_fps) {
         fps.store(new_fps);
@@ -38,11 +33,6 @@ struct CameraStatus {
         timestamp_ns = now;
     }
     
-    void UpdateDetections(int count) {
-        detection_count.store(count);
-        total_detections.fetch_add(count);
-    }
-    
     float GetFps() const {
         return fps.load();
     }
@@ -51,9 +41,6 @@ struct CameraStatus {
         std::lock_guard<std::mutex> lock(timestamp_mutex);
         return timestamp_ns;
     }
-    
-    int GetDetectionCount() const { return detection_count.load(); }
-    int GetTotalDetections() const { return total_detections.load(); }
 };
 
 #endif

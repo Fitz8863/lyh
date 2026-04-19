@@ -5,10 +5,9 @@
 #include <chrono>
 
 CaptureThread::CaptureThread(CameraStatus& status, const std::string& device,
-                             int width, int height, int fps, const std::string& rtsp_url,
-                             YoloInferenceThread* yolo_thread)
+                             int width, int height, int fps, const std::string& rtsp_url)
     : status_(status), device_(device), width_(width), height_(height), 
-      fps_(fps), rtsp_url_(rtsp_url), running_(false), yolo_thread_(yolo_thread) {}
+      fps_(fps), rtsp_url_(rtsp_url), running_(false) {}
 
 CaptureThread::~CaptureThread() {
     Stop();
@@ -42,7 +41,8 @@ void CaptureThread::Run() {
         ", height=(int)" + std::to_string(height_) +
         ", framerate=" + std::to_string(fps_) + "/1 ! "
         "jpegdec ! "
-        "videoconvert ! appsink";
+        "videoconvert ! video/x-raw, format=BGR ! "
+        "appsink drop=1 max-buffers=1";
 
     std::cout << "正在打开摄像头 (MJPEG " << width_ << "x" << height_ << "@" << fps_ << "fps)..." << std::endl;
 
@@ -100,13 +100,7 @@ void CaptureThread::Run() {
             fps_update_time = now;
         }
         
-        // 推流原始帧 (无检测框)
         writer << frame;
-        
-        // 异步推送到YOLO推理线程
-        if (yolo_thread_) {
-            yolo_thread_->PushFrame(frame);
-        }
     }
     
     cap.release();

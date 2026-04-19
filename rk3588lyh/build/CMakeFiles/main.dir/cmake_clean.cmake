@@ -1,16 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/main.dir/src/camera_manager.cc.o"
-  "CMakeFiles/main.dir/src/camera_manager.cc.o.d"
   "CMakeFiles/main.dir/src/camera_status.cc.o"
-  "CMakeFiles/main.dir/src/camera_status.cc.o.d"
   "CMakeFiles/main.dir/src/capture_thread.cc.o"
-  "CMakeFiles/main.dir/src/capture_thread.cc.o.d"
   "CMakeFiles/main.dir/src/main.cc.o"
-  "CMakeFiles/main.dir/src/main.cc.o.d"
   "CMakeFiles/main.dir/src/publisher_thread.cc.o"
-  "CMakeFiles/main.dir/src/publisher_thread.cc.o.d"
-  "CMakeFiles/main.dir/src/voice_capture_thread.cc.o"
-  "CMakeFiles/main.dir/src/voice_capture_thread.cc.o.d"
   "main"
   "main.pdb"
 )

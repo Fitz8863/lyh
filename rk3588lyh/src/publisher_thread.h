@@ -1,20 +1,19 @@
 #ifndef PUBLISHER_THREAD_H
 #define PUBLISHER_THREAD_H
 
-#include <thread>
 #include <string>
+#include <mutex>
+#include <thread>
 #include <memory>
+#include <atomic>
 #include "camera_status.h"
-
-namespace mqtt { class async_client; }
+#include <mqtt/async_client.h>
 
 class PublisherThread {
 public:
-    PublisherThread(CameraStatus* status,
-                  const std::string& device_id,
-                  const std::string& server, 
-                  const std::string& topic, int heart_rate,
-                  const std::string& user_name, const std::string& password);
+    PublisherThread(CameraStatus& status,
+                    const std::string& device_id,
+                    const std::string& server, const std::string& topic, int interval_ms);
     ~PublisherThread();
     
     void Start();
@@ -22,23 +21,19 @@ public:
     bool IsRunning() const;
     bool IsConnected() const;
     
-    // 发布单条检测结果JSON (到 topic/detections)
-    bool PublishDetection(const std::string& json_payload);
+    std::string BuildJsonMessage();
     
 private:
     void Run();
-    std::string BuildJsonMessage();
     
-    CameraStatus* status_;
-    std::thread thread_;
+    CameraStatus& status_;
+    std::mutex status_mutex_;
     std::string device_id_;
     std::string server_;
     std::string topic_;
-    std::string detection_topic_;  // 检测结果主题 (topic + "/detections")
-    int heart_rate_;
-    std::string user_name_;
-    std::string password_;
-    bool running_;
+    int interval_ms_;
+    std::thread thread_;
+    std::atomic<bool> running_;
     bool connected_;
     std::unique_ptr<mqtt::async_client> client_;
 };

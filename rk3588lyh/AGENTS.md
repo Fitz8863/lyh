@@ -10,11 +10,17 @@
 
 ```
 rk3588/
-├── CMakeLists.txt      # CMake 构建配置
+├── CMakeLists.txt              # CMake 构建配置
+├── config.yaml                 # 设备与摄像头配置
+├── README.md                   # 项目文档
 ├── src/
-│   ├── main.cc        # 主程序
-│   └── before.cc      # (备用/测试代码)
-└── build/              # 编译输出目录
+│   ├── main.cc                 # 主程序入口
+│   ├── camera_status.h / .cc   # 摄像头状态结构
+│   ├── capture_thread.h / .cc  # 视频采集线程
+│   ├── publisher_thread.h / .cc# MQTT 状态发布线程
+│   ├── global_running.h        # 全局信号控制
+│   └── before.cc               # (备用/测试代码)
+└── build/                      # 编译输出目录
 ```
 
 ---

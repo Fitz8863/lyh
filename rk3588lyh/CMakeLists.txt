@@ -23,8 +23,6 @@ add_executable(main
     src/camera_status.cc
     src/capture_thread.cc
     src/publisher_thread.cc
-    src/camera_manager.cc
-    src/voice_capture_thread.cc
 )
 
 include_directories(${GST_INCLUDE_DIRS})
