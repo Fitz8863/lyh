@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-pthread")
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/ 3rdparty.out)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/utils/ utils.out)
+
+
 find_package(OpenCV REQUIRED)
 
 find_package(yaml-cpp REQUIRED)
@@ -35,3 +39,10 @@ target_link_libraries(main
     ${GST_LIBRARIES}
 )
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${LIBRKNNRT_INCLUDES}
+    ${THREAD_INCLUDES}
+)
