@@ -16,6 +16,9 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/gstreamer-1.0"
   "/usr/include/glib-2.0"
   "/usr/lib/aarch64-linux-gnu/glib-2.0/include"
+  "../"
+  "../3rdparty/rknpu2/include"
+  "../3rdparty/thread_pool"
   "/usr/local/include/opencv4"
   )
 

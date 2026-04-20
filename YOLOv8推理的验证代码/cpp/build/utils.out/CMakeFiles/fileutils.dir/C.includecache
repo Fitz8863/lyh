@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/cat/RK3588_yolov8detect_cpp/cpp/utils/file_utils.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+

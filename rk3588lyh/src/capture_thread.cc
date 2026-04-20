@@ -35,18 +35,14 @@ bool CaptureThread::IsRunning() const {
 }
 
 void CaptureThread::Run() {
-    std::string read_pipeline =
-        "v4l2src device=" + device_ + " ! "
-        "image/jpeg, width=(int)" + std::to_string(width_) +
-        ", height=(int)" + std::to_string(height_) +
-        ", framerate=" + std::to_string(fps_) + "/1 ! "
-        "jpegdec ! "
-        "videoconvert ! video/x-raw, format=BGR ! "
-        "appsink drop=1 max-buffers=1";
+     cv::VideoCapture cap;
+    cap.open(0, cv::CAP_V4L2);
 
-    std::cout << "正在打开摄像头 (MJPEG " << width_ << "x" << height_ << "@" << fps_ << "fps)..." << std::endl;
-
-    cv::VideoCapture cap(read_pipeline, cv::CAP_GSTREAMER);
+    // 打开后立即设置参数
+    cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G')); // 强制使用 MJPEG 格式
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);  // 宽
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080); // 高
+    cap.set(cv::CAP_PROP_FPS, 25);            // 帧率
     if (!cap.isOpened()) {
         std::cerr << "错误：无法打开摄像头 pipeline！" << std::endl;
         running_ = false;

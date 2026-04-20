@@ -6,5 +6,5 @@ CXX_FLAGS = -pthread   -std=gnu++17
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -isystem /usr/local/include/opencv4 
+CXX_INCLUDES = -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -I/home/cat/lyh/rk3588lyh -I/home/cat/lyh/rk3588lyh/3rdparty/rknpu2/include -I/home/cat/lyh/rk3588lyh/3rdparty/thread_pool -isystem /usr/local/include/opencv4 
 
