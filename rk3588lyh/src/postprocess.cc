@@ -554,7 +554,7 @@ int init_post_process()
     return 0;
 }
 
-char* coco_cls_to_name(int cls_id)
+const char* coco_cls_to_name(int cls_id)
 {
 
     if (cls_id >= OBJ_CLASS_NUM)

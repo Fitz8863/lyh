@@ -12,7 +12,6 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.16.3/CMakeCCompiler.cmake"
   "CMakeFiles/3.16.3/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.16.3/CMakeSystem.cmake"
-  "../utils/CMakeLists.txt"
   "/usr/lib/aarch64-linux-gnu/cmake/yaml-cpp/yaml-cpp-config-version.cmake"
   "/usr/lib/aarch64-linux-gnu/cmake/yaml-cpp/yaml-cpp-config.cmake"
   "/usr/lib/aarch64-linux-gnu/cmake/yaml-cpp/yaml-cpp-targets-release.cmake"
@@ -55,14 +54,9 @@ set(CMAKE_MAKEFILE_OUTPUTS
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "3rdparty.out/CMakeFiles/CMakeDirectoryInformation.cmake"
-  "utils.out/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/camera_capture_helper.dir/DependInfo.cmake"
   "CMakeFiles/main.dir/DependInfo.cmake"
-  "utils.out/CMakeFiles/imageutils.dir/DependInfo.cmake"
-  "utils.out/CMakeFiles/imagedrawing.dir/DependInfo.cmake"
-  "utils.out/CMakeFiles/fileutils.dir/DependInfo.cmake"
   )

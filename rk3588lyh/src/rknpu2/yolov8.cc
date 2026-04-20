@@ -19,10 +19,10 @@ static void dump_tensor_attr(rknn_tensor_attr* attr)
            get_qnt_type_string(attr->qnt_type), attr->zp, attr->scale);
 }
 
-rkYolov8::rkYolov8(const char* model_path) {
+rkYolov8::rkYolov8(const char* model_path,float nms_threshold,float box_conf_threshold) {
     this->model_path = model_path;
-    nms_threshold = NMS_THRESH;      // 默认的NMS阈值
-    box_conf_threshold = BOX_THRESH; // 默认的置信度阈值
+    this->nms_threshold = nms_threshold;
+    this->box_conf_threshold = box_conf_threshold;
 }
 
 // 获取类成员变app_ctx 接口

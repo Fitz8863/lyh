@@ -68,6 +68,18 @@ install/strip/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
 
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
 # Special rule for the target install
 install: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
@@ -112,18 +124,6 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local/fast
-
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/cat/lyh/rk3588lyh/build/CMakeFiles /home/cat/lyh/rk3588lyh/build/CMakeFiles/progress.marks
@@ -157,19 +157,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named camera_capture_helper
-
-# Build rule for target.
-camera_capture_helper: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 camera_capture_helper
-.PHONY : camera_capture_helper
-
-# fast build rule for target.
-camera_capture_helper/fast:
-	$(MAKE) -f CMakeFiles/camera_capture_helper.dir/build.make CMakeFiles/camera_capture_helper.dir/build
-.PHONY : camera_capture_helper/fast
-
-#=============================================================================
 # Target rules for targets named main
 
 # Build rule for target.
@@ -181,72 +168,6 @@ main: cmake_check_build_system
 main/fast:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 .PHONY : main/fast
-
-#=============================================================================
-# Target rules for targets named imageutils
-
-# Build rule for target.
-imageutils: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 imageutils
-.PHONY : imageutils
-
-# fast build rule for target.
-imageutils/fast:
-	$(MAKE) -f utils.out/CMakeFiles/imageutils.dir/build.make utils.out/CMakeFiles/imageutils.dir/build
-.PHONY : imageutils/fast
-
-#=============================================================================
-# Target rules for targets named imagedrawing
-
-# Build rule for target.
-imagedrawing: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 imagedrawing
-.PHONY : imagedrawing
-
-# fast build rule for target.
-imagedrawing/fast:
-	$(MAKE) -f utils.out/CMakeFiles/imagedrawing.dir/build.make utils.out/CMakeFiles/imagedrawing.dir/build
-.PHONY : imagedrawing/fast
-
-#=============================================================================
-# Target rules for targets named fileutils
-
-# Build rule for target.
-fileutils: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 fileutils
-.PHONY : fileutils
-
-# fast build rule for target.
-fileutils/fast:
-	$(MAKE) -f utils.out/CMakeFiles/fileutils.dir/build.make utils.out/CMakeFiles/fileutils.dir/build
-.PHONY : fileutils/fast
-
-src/camera_capture_helper.o: src/camera_capture_helper.cc.o
-
-.PHONY : src/camera_capture_helper.o
-
-# target to build an object file
-src/camera_capture_helper.cc.o:
-	$(MAKE) -f CMakeFiles/camera_capture_helper.dir/build.make CMakeFiles/camera_capture_helper.dir/src/camera_capture_helper.cc.o
-.PHONY : src/camera_capture_helper.cc.o
-
-src/camera_capture_helper.i: src/camera_capture_helper.cc.i
-
-.PHONY : src/camera_capture_helper.i
-
-# target to preprocess a source file
-src/camera_capture_helper.cc.i:
-	$(MAKE) -f CMakeFiles/camera_capture_helper.dir/build.make CMakeFiles/camera_capture_helper.dir/src/camera_capture_helper.cc.i
-.PHONY : src/camera_capture_helper.cc.i
-
-src/camera_capture_helper.s: src/camera_capture_helper.cc.s
-
-.PHONY : src/camera_capture_helper.s
-
-# target to generate assembly for a file
-src/camera_capture_helper.cc.s:
-	$(MAKE) -f CMakeFiles/camera_capture_helper.dir/build.make CMakeFiles/camera_capture_helper.dir/src/camera_capture_helper.cc.s
-.PHONY : src/camera_capture_helper.cc.s
 
 src/camera_status.o: src/camera_status.cc.o
 
@@ -437,6 +358,60 @@ src/yolo_detector.cc.s:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/yolo_detector.cc.s
 .PHONY : src/yolo_detector.cc.s
 
+utils/file_utils.o: utils/file_utils.c.o
+
+.PHONY : utils/file_utils.o
+
+# target to build an object file
+utils/file_utils.c.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/utils/file_utils.c.o
+.PHONY : utils/file_utils.c.o
+
+utils/file_utils.i: utils/file_utils.c.i
+
+.PHONY : utils/file_utils.i
+
+# target to preprocess a source file
+utils/file_utils.c.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/utils/file_utils.c.i
+.PHONY : utils/file_utils.c.i
+
+utils/file_utils.s: utils/file_utils.c.s
+
+.PHONY : utils/file_utils.s
+
+# target to generate assembly for a file
+utils/file_utils.c.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/utils/file_utils.c.s
+.PHONY : utils/file_utils.c.s
+
+utils/image_convert.o: utils/image_convert.c.o
+
+.PHONY : utils/image_convert.o
+
+# target to build an object file
+utils/image_convert.c.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/utils/image_convert.c.o
+.PHONY : utils/image_convert.c.o
+
+utils/image_convert.i: utils/image_convert.c.i
+
+.PHONY : utils/image_convert.i
+
+# target to preprocess a source file
+utils/image_convert.c.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/utils/image_convert.c.i
+.PHONY : utils/image_convert.c.i
+
+utils/image_convert.s: utils/image_convert.c.s
+
+.PHONY : utils/image_convert.s
+
+# target to generate assembly for a file
+utils/image_convert.c.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/utils/image_convert.c.s
+.PHONY : utils/image_convert.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -444,19 +419,12 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... install/strip"
+	@echo "... install/local"
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... install/local"
-	@echo "... camera_capture_helper"
 	@echo "... main"
-	@echo "... imageutils"
-	@echo "... imagedrawing"
-	@echo "... fileutils"
-	@echo "... src/camera_capture_helper.o"
-	@echo "... src/camera_capture_helper.i"
-	@echo "... src/camera_capture_helper.s"
 	@echo "... src/camera_status.o"
 	@echo "... src/camera_status.i"
 	@echo "... src/camera_status.s"
@@ -478,6 +446,12 @@ help:
 	@echo "... src/yolo_detector.o"
 	@echo "... src/yolo_detector.i"
 	@echo "... src/yolo_detector.s"
+	@echo "... utils/file_utils.o"
+	@echo "... utils/file_utils.i"
+	@echo "... utils/file_utils.s"
+	@echo "... utils/image_convert.o"
+	@echo "... utils/image_convert.i"
+	@echo "... utils/image_convert.s"
 .PHONY : help
 
 

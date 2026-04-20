@@ -39,7 +39,7 @@ private:
     rknn_app_context_t app_ctx;
 
 public:
-    rkYolov8(const char *model_path);
+    rkYolov8(const char *model_path,float nms_threshold,float box_conf_threshold);
     int init_yolov8_model(rknn_app_context_t *input_app_ctx, bool share_weight, rknn_core core = CORE_0_1_2);
     rknn_app_context_t *Get_app_ctx();
     object_detect_result_list inference_yolov8_model(image_buffer_t *img);

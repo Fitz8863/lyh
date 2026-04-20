@@ -11,18 +11,22 @@ struct FrameTask {
 
 struct YoloDetector::Impl {
     std::string model_path;
+    float nms_threshold;
+    float box_conf_threshold;
     int thread_num;
     std::queue<FrameTask> pending_frames;
     int max_pending;
     rknnPool<rkYolov8, image_buffer_t*, object_detect_result_list>* pool;
 };
 
-YoloDetector::YoloDetector(const std::string& model_path, int thread_num)
+YoloDetector::YoloDetector(const std::string& model_path, int thread_num,float nms_threshold,float box_conf_threshold)
 {
     impl = new Impl();
     impl->model_path = model_path;
     impl->thread_num = thread_num;
-    impl->max_pending = thread_num * 3;
+    impl->box_conf_threshold = box_conf_threshold;
+    impl->nms_threshold = nms_threshold;
+    impl->max_pending = thread_num;
     impl->pool = nullptr;
 }
 
@@ -41,7 +45,7 @@ int YoloDetector::init()
     init_post_process();
 
     impl->pool = new rknnPool<rkYolov8, image_buffer_t*, object_detect_result_list>(
-        impl->model_path, impl->thread_num);
+        impl->model_path, impl->thread_num, impl->nms_threshold, impl->box_conf_threshold);
 
     int ret = impl->pool->init();
     if (ret != 0)

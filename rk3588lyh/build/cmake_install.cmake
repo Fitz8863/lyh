@@ -40,7 +40,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/cat/lyh/rk3588lyh/build/3rdparty.out/cmake_install.cmake")
-  include("/home/cat/lyh/rk3588lyh/build/utils.out/cmake_install.cmake")
 
 endif()
 

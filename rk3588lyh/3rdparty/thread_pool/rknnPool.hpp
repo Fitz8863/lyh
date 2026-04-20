@@ -18,6 +18,8 @@ class rknnPool
 private:
     int threadNum;
     std::string modelPath;
+    float nmsThreshold;
+    float boxConfThreshold;
     
     std::mutex queueMtx;
     std::unique_ptr<ThreadPool> pool;
@@ -26,7 +28,7 @@ private:
     std::atomic<int> model_idx{0};
 
 public:
-    rknnPool(const std::string modelPath, int threadNum);
+    rknnPool(const std::string modelPath, int threadNum, float nmsThreshold, float boxConfThreshold);
     int init();
     int put(inputType inputData);
     int get(outputType& outputData);
@@ -36,10 +38,12 @@ public:
 };
 
 template <typename rknnModel, typename inputType, typename outputType>
-rknnPool<rknnModel, inputType, outputType>::rknnPool(const std::string modelPath, int threadNum)
+rknnPool<rknnModel, inputType, outputType>::rknnPool(const std::string modelPath, int threadNum, float nmsThreshold, float boxConfThreshold)
 {
     this->modelPath = modelPath;
     this->threadNum = threadNum;
+    this->nmsThreshold = nmsThreshold;
+    this->boxConfThreshold = boxConfThreshold;
 }
 
 template <typename rknnModel, typename inputType, typename outputType>
@@ -49,7 +53,7 @@ int rknnPool<rknnModel, inputType, outputType>::init()
     {
         this->pool = std::make_unique<ThreadPool>(this->threadNum);
         for (int i = 0; i < this->threadNum; i++) {
-            models.push_back(std::make_shared<rknnModel>(this->modelPath.c_str()));
+            models.push_back(std::make_shared<rknnModel>(this->modelPath.c_str(), this->nmsThreshold, this->boxConfThreshold));
         }
     }
     catch (const std::bad_alloc& e)

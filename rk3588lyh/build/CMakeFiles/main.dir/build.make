@@ -148,6 +148,32 @@ CMakeFiles/main.dir/src/postprocess.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/src/postprocess.cc.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/cat/lyh/rk3588lyh/src/postprocess.cc -o CMakeFiles/main.dir/src/postprocess.cc.s
 
+CMakeFiles/main.dir/utils/file_utils.c.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/utils/file_utils.c.o: ../utils/file_utils.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/cat/lyh/rk3588lyh/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/main.dir/utils/file_utils.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/main.dir/utils/file_utils.c.o   -c /home/cat/lyh/rk3588lyh/utils/file_utils.c
+
+CMakeFiles/main.dir/utils/file_utils.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/main.dir/utils/file_utils.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/cat/lyh/rk3588lyh/utils/file_utils.c > CMakeFiles/main.dir/utils/file_utils.c.i
+
+CMakeFiles/main.dir/utils/file_utils.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/main.dir/utils/file_utils.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/cat/lyh/rk3588lyh/utils/file_utils.c -o CMakeFiles/main.dir/utils/file_utils.c.s
+
+CMakeFiles/main.dir/utils/image_convert.c.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/utils/image_convert.c.o: ../utils/image_convert.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/cat/lyh/rk3588lyh/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/main.dir/utils/image_convert.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/main.dir/utils/image_convert.c.o   -c /home/cat/lyh/rk3588lyh/utils/image_convert.c
+
+CMakeFiles/main.dir/utils/image_convert.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/main.dir/utils/image_convert.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/cat/lyh/rk3588lyh/utils/image_convert.c > CMakeFiles/main.dir/utils/image_convert.c.i
+
+CMakeFiles/main.dir/utils/image_convert.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/main.dir/utils/image_convert.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/cat/lyh/rk3588lyh/utils/image_convert.c -o CMakeFiles/main.dir/utils/image_convert.c.s
+
 # Object files for target main
 main_OBJECTS = \
 "CMakeFiles/main.dir/src/main.cc.o" \
@@ -156,7 +182,9 @@ main_OBJECTS = \
 "CMakeFiles/main.dir/src/publisher_thread.cc.o" \
 "CMakeFiles/main.dir/src/yolo_detector.cc.o" \
 "CMakeFiles/main.dir/src/rknpu2/yolov8.cc.o" \
-"CMakeFiles/main.dir/src/postprocess.cc.o"
+"CMakeFiles/main.dir/src/postprocess.cc.o" \
+"CMakeFiles/main.dir/utils/file_utils.c.o" \
+"CMakeFiles/main.dir/utils/image_convert.c.o"
 
 # External object files for target main
 main_EXTERNAL_OBJECTS =
@@ -168,11 +196,11 @@ main: CMakeFiles/main.dir/src/publisher_thread.cc.o
 main: CMakeFiles/main.dir/src/yolo_detector.cc.o
 main: CMakeFiles/main.dir/src/rknpu2/yolov8.cc.o
 main: CMakeFiles/main.dir/src/postprocess.cc.o
+main: CMakeFiles/main.dir/utils/file_utils.c.o
+main: CMakeFiles/main.dir/utils/image_convert.c.o
 main: CMakeFiles/main.dir/build.make
-main: utils.out/libimageutils.a
-main: utils.out/libfileutils.a
-main: utils.out/libimagedrawing.a
 main: ../3rdparty/rknpu2/Linux/aarch64/librknnrt.so
+main: ../3rdparty/librga/aarch64/librga.a
 main: /usr/local/lib/libopencv_gapi.so.4.10.0
 main: /usr/local/lib/libopencv_highgui.so.4.10.0
 main: /usr/local/lib/libopencv_ml.so.4.10.0
@@ -183,8 +211,6 @@ main: /usr/local/lib/libopencv_video.so.4.10.0
 main: /usr/local/lib/libopencv_videoio.so.4.10.0
 main: /usr/local/lib/libpaho-mqtt3a.so
 main: /usr/lib/aarch64-linux-gnu/libyaml-cpp.so.0.6.2
-main: ../3rdparty/jpeg_turbo/Linux/aarch64/libturbojpeg.a
-main: ../3rdparty/librga/aarch64/librga.a
 main: /usr/local/lib/libopencv_imgcodecs.so.4.10.0
 main: /usr/local/lib/libopencv_dnn.so.4.10.0
 main: /usr/local/lib/libopencv_calib3d.so.4.10.0
@@ -193,7 +219,7 @@ main: /usr/local/lib/libopencv_flann.so.4.10.0
 main: /usr/local/lib/libopencv_imgproc.so.4.10.0
 main: /usr/local/lib/libopencv_core.so.4.10.0
 main: CMakeFiles/main.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/cat/lyh/rk3588lyh/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/cat/lyh/rk3588lyh/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable main"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/main.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
