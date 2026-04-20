@@ -27,11 +27,18 @@ add_executable(main
     src/camera_status.cc
     src/capture_thread.cc
     src/publisher_thread.cc
+    src/yolo_detector.cc
+    src/rknpu2/yolov8.cc
+    src/postprocess.cc
 )
 
 include_directories(${GST_INCLUDE_DIRS})
 
 target_link_libraries(main
+    imageutils
+    fileutils
+    imagedrawing
+    ${LIBRKNNRT}
     ${OpenCV_LIBS}
     ${MQTT_LIBRARY}
     paho-mqttpp3
@@ -43,6 +50,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/thread_pool
     ${LIBRKNNRT_INCLUDES}
     ${THREAD_INCLUDES}
 )

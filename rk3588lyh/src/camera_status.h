@@ -5,6 +5,7 @@
 #include <mutex>
 #include <string>
 #include <chrono>
+#include "postprocess.h"
 
 struct CameraStatus {
     std::atomic<float> fps;
@@ -18,6 +19,10 @@ struct CameraStatus {
     std::string location;
     std::string http_url;
     std::string rtsp_url;
+    
+    mutable std::mutex detect_mutex;
+    object_detect_result_list detect_results;
+    std::atomic<bool> has_new_detection{false};
     
     CameraStatus() : fps(0.0f), width(1920), height(1080), running(true), timestamp_ns(0) {}
     
@@ -40,6 +45,17 @@ struct CameraStatus {
     int64_t GetTimestamp() const {
         std::lock_guard<std::mutex> lock(timestamp_mutex);
         return timestamp_ns;
+    }
+    
+    void SetDetectResults(const object_detect_result_list& results) {
+        std::lock_guard<std::mutex> lock(detect_mutex);
+        detect_results = results;
+        has_new_detection.store(results.count > 0);
+    }
+    
+    object_detect_result_list GetDetectResults() const {
+        std::lock_guard<std::mutex> lock(detect_mutex);
+        return detect_results;
     }
 };
 

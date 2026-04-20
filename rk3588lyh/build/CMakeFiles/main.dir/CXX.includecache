@@ -6,6 +6,16 @@
 
 #IncludeRegexTransform: 
 
+../3rdparty/rknpu2/include/rknn_api.h
+stdint.h
+-
+
+../utils/common.h
+
+../utils/image_utils.h
+common.h
+../utils/common.h
+
 /home/cat/lyh/rk3588lyh/src/camera_status.h
 atomic
 -
@@ -15,12 +25,16 @@ string
 -
 chrono
 -
+postprocess.h
+/home/cat/lyh/rk3588lyh/src/postprocess.h
 
 /home/cat/lyh/rk3588lyh/src/capture_thread.cc
 capture_thread.h
 /home/cat/lyh/rk3588lyh/src/capture_thread.h
 global_running.h
 /home/cat/lyh/rk3588lyh/src/global_running.h
+postprocess.h
+/home/cat/lyh/rk3588lyh/src/postprocess.h
 opencv2/opencv.hpp
 -
 iostream
@@ -33,12 +47,42 @@ thread
 -
 string
 -
+memory
+-
 camera_status.h
 /home/cat/lyh/rk3588lyh/src/camera_status.h
+yolo_detector.h
+/home/cat/lyh/rk3588lyh/src/yolo_detector.h
+
+/home/cat/lyh/rk3588lyh/src/common_types.h
+rknn_api.h
+/home/cat/lyh/rk3588lyh/src/rknn_api.h
+common.h
+/home/cat/lyh/rk3588lyh/src/common.h
+image_utils.h
+/home/cat/lyh/rk3588lyh/src/image_utils.h
+opencv2/opencv.hpp
+-
 
 /home/cat/lyh/rk3588lyh/src/global_running.h
 atomic
 -
+
+/home/cat/lyh/rk3588lyh/src/postprocess.h
+stdint.h
+-
+vector
+-
+common_types.h
+/home/cat/lyh/rk3588lyh/src/common_types.h
+
+/home/cat/lyh/rk3588lyh/src/yolo_detector.h
+opencv2/opencv.hpp
+-
+string
+-
+postprocess.h
+/home/cat/lyh/rk3588lyh/src/postprocess.h
 
 /usr/local/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp

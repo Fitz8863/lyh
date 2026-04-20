@@ -17,3 +17,10 @@ camera:
   width: 1920
   height: 1080
   fps: 25
+  use_yolo: false
+  detector:
+    model_path: "/home/cat/lyh/rk3588lyh/model/yolov8s.rknn"
+    mqtt_report_topic: "rk3588lyh/001/report"
+    confidence_threshold: 0.25
+    nms_threshold: 0.45
+    thread_num: 3

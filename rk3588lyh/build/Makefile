@@ -289,6 +289,33 @@ src/main.cc.s:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/main.cc.s
 .PHONY : src/main.cc.s
 
+src/postprocess.o: src/postprocess.cc.o
+
+.PHONY : src/postprocess.o
+
+# target to build an object file
+src/postprocess.cc.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/postprocess.cc.o
+.PHONY : src/postprocess.cc.o
+
+src/postprocess.i: src/postprocess.cc.i
+
+.PHONY : src/postprocess.i
+
+# target to preprocess a source file
+src/postprocess.cc.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/postprocess.cc.i
+.PHONY : src/postprocess.cc.i
+
+src/postprocess.s: src/postprocess.cc.s
+
+.PHONY : src/postprocess.s
+
+# target to generate assembly for a file
+src/postprocess.cc.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/postprocess.cc.s
+.PHONY : src/postprocess.cc.s
+
 src/publisher_thread.o: src/publisher_thread.cc.o
 
 .PHONY : src/publisher_thread.o
@@ -316,6 +343,60 @@ src/publisher_thread.cc.s:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/publisher_thread.cc.s
 .PHONY : src/publisher_thread.cc.s
 
+src/rknpu2/yolov8.o: src/rknpu2/yolov8.cc.o
+
+.PHONY : src/rknpu2/yolov8.o
+
+# target to build an object file
+src/rknpu2/yolov8.cc.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/rknpu2/yolov8.cc.o
+.PHONY : src/rknpu2/yolov8.cc.o
+
+src/rknpu2/yolov8.i: src/rknpu2/yolov8.cc.i
+
+.PHONY : src/rknpu2/yolov8.i
+
+# target to preprocess a source file
+src/rknpu2/yolov8.cc.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/rknpu2/yolov8.cc.i
+.PHONY : src/rknpu2/yolov8.cc.i
+
+src/rknpu2/yolov8.s: src/rknpu2/yolov8.cc.s
+
+.PHONY : src/rknpu2/yolov8.s
+
+# target to generate assembly for a file
+src/rknpu2/yolov8.cc.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/rknpu2/yolov8.cc.s
+.PHONY : src/rknpu2/yolov8.cc.s
+
+src/yolo_detector.o: src/yolo_detector.cc.o
+
+.PHONY : src/yolo_detector.o
+
+# target to build an object file
+src/yolo_detector.cc.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/yolo_detector.cc.o
+.PHONY : src/yolo_detector.cc.o
+
+src/yolo_detector.i: src/yolo_detector.cc.i
+
+.PHONY : src/yolo_detector.i
+
+# target to preprocess a source file
+src/yolo_detector.cc.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/yolo_detector.cc.i
+.PHONY : src/yolo_detector.cc.i
+
+src/yolo_detector.s: src/yolo_detector.cc.s
+
+.PHONY : src/yolo_detector.s
+
+# target to generate assembly for a file
+src/yolo_detector.cc.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/yolo_detector.cc.s
+.PHONY : src/yolo_detector.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -341,9 +422,18 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/postprocess.o"
+	@echo "... src/postprocess.i"
+	@echo "... src/postprocess.s"
 	@echo "... src/publisher_thread.o"
 	@echo "... src/publisher_thread.i"
 	@echo "... src/publisher_thread.s"
+	@echo "... src/rknpu2/yolov8.o"
+	@echo "... src/rknpu2/yolov8.i"
+	@echo "... src/rknpu2/yolov8.s"
+	@echo "... src/yolo_detector.o"
+	@echo "... src/yolo_detector.i"
+	@echo "... src/yolo_detector.s"
 .PHONY : help
 
 

@@ -1,13 +1,15 @@
 #include "capture_thread.h"
 #include "global_running.h"
+#include "postprocess.h"
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <chrono>
 
 CaptureThread::CaptureThread(CameraStatus& status, const std::string& device,
-                             int width, int height, int fps, const std::string& rtsp_url)
+                             int width, int height, int fps, const std::string& rtsp_url,
+                             YoloDetector* detector)
     : status_(status), device_(device), width_(width), height_(height), 
-      fps_(fps), rtsp_url_(rtsp_url), running_(false) {}
+      fps_(fps), rtsp_url_(rtsp_url), running_(false), detector_(detector) {}
 
 CaptureThread::~CaptureThread() {
     Stop();
@@ -35,14 +37,19 @@ bool CaptureThread::IsRunning() const {
 }
 
 void CaptureThread::Run() {
-     cv::VideoCapture cap;
-    cap.open(0, cv::CAP_V4L2);
+    // 使用 GStreamer pipeline 读取 MJPEG（和 before.cc 相同的方式）
+    std::string read_pipeline =
+        "v4l2src device=" + device_ + " ! "
+        "image/jpeg, width=(int)" + std::to_string(width_) +
+        ", height=(int)" + std::to_string(height_) +
+        ", framerate=" + std::to_string(fps_) + "/1 ! "
+        "jpegdec ! "
+        "videoconvert ! video/x-raw, format=BGR ! "
+        "appsink drop=1 max-buffers=1";
 
-    // 打开后立即设置参数
-    cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G')); // 强制使用 MJPEG 格式
-    cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);  // 宽
-    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080); // 高
-    cap.set(cv::CAP_PROP_FPS, 25);            // 帧率
+    std::cout << "正在打开摄像头 (MJPEG " << width_ << "x" << height_ << "@" << fps_ << "fps)..." << std::endl;
+
+    cv::VideoCapture cap(read_pipeline, cv::CAP_GSTREAMER);
     if (!cap.isOpened()) {
         std::cerr << "错误：无法打开摄像头 pipeline！" << std::endl;
         running_ = false;
@@ -50,30 +57,36 @@ void CaptureThread::Run() {
         return;
     }
 
-    std::string push_pipeline =
-        "appsrc ! "
-        "videoconvert ! "
-        "video/x-raw,format=NV12,width=" + std::to_string(width_) +
-        ",height=" + std::to_string(height_) +
-        ",framerate=" + std::to_string(fps_) + "/1 ! "
-        "mpph264enc bps=8000000 ! "
-        "h264parse ! "
-        "rtspclientsink location=" + rtsp_url_;
+    // 使用 ffmpeg 管道推流（和 before.cc 相同的方式）
+    std::string cmd =
+        "ffmpeg -y "
+        "-f rawvideo -pix_fmt bgr24 -s " + std::to_string(width_) + "x" + std::to_string(height_) +
+        " -r " + std::to_string(fps_) +
+        " -i - "
+        "-c:v h264_rkmpp "
+        "-fflags nobuffer -flags low_delay "
+        "-rtsp_transport udp "
+        "-f rtsp " + rtsp_url_;
 
-    cv::VideoWriter writer(push_pipeline, cv::CAP_GSTREAMER, 0, fps_, cv::Size(width_, height_), true);
-    if (!writer.isOpened()) {
-        std::cerr << "错误：无法打开推流 pipeline！" << std::endl;
+    FILE* ffmpeg = popen(cmd.c_str(), "w");
+    if (!ffmpeg) {
+        std::cerr << "错误：无法打开 ffmpeg 管道！" << std::endl;
         cap.release();
         running_ = false;
         status_.running.store(false);
         return;
     }
 
-    std::cout << "RTSP 推流已启动 → " << rtsp_url_ << " (8Mbps)" << std::endl;
+    std::cout << "RTSP 推流已启动 → " << rtsp_url_ << std::endl;
 
     auto fps_update_time = std::chrono::high_resolution_clock::now();
     int frame_count = 0;
     float current_fps = 0.0f;
+    bool detector_ready = (detector_ != nullptr);
+    
+    if (detector_ready) {
+        std::cout << "YOLOv8 推理已启用（异步模式）" << std::endl;
+    }
     
     cv::Mat frame;
     while (running_ && status_.running.load() && g_running) {
@@ -96,10 +109,24 @@ void CaptureThread::Run() {
             fps_update_time = now;
         }
         
-        writer << frame;
+        if (detector_ready) {
+            detector_->submit(frame);
+            
+            cv::Mat annotated_frame;
+            object_detect_result_list results;
+            if (detector_->retrieve(annotated_frame, results)) {
+                draw_results(annotated_frame, results);
+                status_.SetDetectResults(results);
+                fwrite(annotated_frame.data, 1, width_ * height_ * 3, ffmpeg);
+            } else {
+                fwrite(frame.data, 1, width_ * height_ * 3, ffmpeg);
+            }
+        } else {
+            fwrite(frame.data, 1, width_ * height_ * 3, ffmpeg);
+        }
     }
     
     cap.release();
-    writer.release();
+    pclose(ffmpeg);
     std::cout << "摄像头推流线程已退出" << std::endl;
 }

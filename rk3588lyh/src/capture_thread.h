@@ -3,12 +3,15 @@
 
 #include <thread>
 #include <string>
+#include <memory>
 #include "camera_status.h"
+#include "yolo_detector.h"
 
 class CaptureThread {
 public:
     CaptureThread(CameraStatus& status, const std::string& device, 
-                  int width, int height, int fps, const std::string& rtsp_url);
+                  int width, int height, int fps, const std::string& rtsp_url,
+                  YoloDetector* detector = nullptr);
     ~CaptureThread();
     
     void Start();
@@ -26,6 +29,7 @@ private:
     int fps_;
     std::string rtsp_url_;
     bool running_;
+    YoloDetector* detector_;
 };
 
 #endif

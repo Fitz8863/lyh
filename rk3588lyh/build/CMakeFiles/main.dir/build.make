@@ -109,12 +109,54 @@ CMakeFiles/main.dir/src/publisher_thread.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/src/publisher_thread.cc.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/cat/lyh/rk3588lyh/src/publisher_thread.cc -o CMakeFiles/main.dir/src/publisher_thread.cc.s
 
+CMakeFiles/main.dir/src/yolo_detector.cc.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/src/yolo_detector.cc.o: ../src/yolo_detector.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/cat/lyh/rk3588lyh/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/main.dir/src/yolo_detector.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/src/yolo_detector.cc.o -c /home/cat/lyh/rk3588lyh/src/yolo_detector.cc
+
+CMakeFiles/main.dir/src/yolo_detector.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/src/yolo_detector.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/cat/lyh/rk3588lyh/src/yolo_detector.cc > CMakeFiles/main.dir/src/yolo_detector.cc.i
+
+CMakeFiles/main.dir/src/yolo_detector.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/src/yolo_detector.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/cat/lyh/rk3588lyh/src/yolo_detector.cc -o CMakeFiles/main.dir/src/yolo_detector.cc.s
+
+CMakeFiles/main.dir/src/rknpu2/yolov8.cc.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/src/rknpu2/yolov8.cc.o: ../src/rknpu2/yolov8.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/cat/lyh/rk3588lyh/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/main.dir/src/rknpu2/yolov8.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/src/rknpu2/yolov8.cc.o -c /home/cat/lyh/rk3588lyh/src/rknpu2/yolov8.cc
+
+CMakeFiles/main.dir/src/rknpu2/yolov8.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/src/rknpu2/yolov8.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/cat/lyh/rk3588lyh/src/rknpu2/yolov8.cc > CMakeFiles/main.dir/src/rknpu2/yolov8.cc.i
+
+CMakeFiles/main.dir/src/rknpu2/yolov8.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/src/rknpu2/yolov8.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/cat/lyh/rk3588lyh/src/rknpu2/yolov8.cc -o CMakeFiles/main.dir/src/rknpu2/yolov8.cc.s
+
+CMakeFiles/main.dir/src/postprocess.cc.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/src/postprocess.cc.o: ../src/postprocess.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/cat/lyh/rk3588lyh/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/main.dir/src/postprocess.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/src/postprocess.cc.o -c /home/cat/lyh/rk3588lyh/src/postprocess.cc
+
+CMakeFiles/main.dir/src/postprocess.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/src/postprocess.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/cat/lyh/rk3588lyh/src/postprocess.cc > CMakeFiles/main.dir/src/postprocess.cc.i
+
+CMakeFiles/main.dir/src/postprocess.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/src/postprocess.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/cat/lyh/rk3588lyh/src/postprocess.cc -o CMakeFiles/main.dir/src/postprocess.cc.s
+
 # Object files for target main
 main_OBJECTS = \
 "CMakeFiles/main.dir/src/main.cc.o" \
 "CMakeFiles/main.dir/src/camera_status.cc.o" \
 "CMakeFiles/main.dir/src/capture_thread.cc.o" \
-"CMakeFiles/main.dir/src/publisher_thread.cc.o"
+"CMakeFiles/main.dir/src/publisher_thread.cc.o" \
+"CMakeFiles/main.dir/src/yolo_detector.cc.o" \
+"CMakeFiles/main.dir/src/rknpu2/yolov8.cc.o" \
+"CMakeFiles/main.dir/src/postprocess.cc.o"
 
 # External object files for target main
 main_EXTERNAL_OBJECTS =
@@ -123,7 +165,14 @@ main: CMakeFiles/main.dir/src/main.cc.o
 main: CMakeFiles/main.dir/src/camera_status.cc.o
 main: CMakeFiles/main.dir/src/capture_thread.cc.o
 main: CMakeFiles/main.dir/src/publisher_thread.cc.o
+main: CMakeFiles/main.dir/src/yolo_detector.cc.o
+main: CMakeFiles/main.dir/src/rknpu2/yolov8.cc.o
+main: CMakeFiles/main.dir/src/postprocess.cc.o
 main: CMakeFiles/main.dir/build.make
+main: utils.out/libimageutils.a
+main: utils.out/libfileutils.a
+main: utils.out/libimagedrawing.a
+main: ../3rdparty/rknpu2/Linux/aarch64/librknnrt.so
 main: /usr/local/lib/libopencv_gapi.so.4.10.0
 main: /usr/local/lib/libopencv_highgui.so.4.10.0
 main: /usr/local/lib/libopencv_ml.so.4.10.0
@@ -134,6 +183,8 @@ main: /usr/local/lib/libopencv_video.so.4.10.0
 main: /usr/local/lib/libopencv_videoio.so.4.10.0
 main: /usr/local/lib/libpaho-mqtt3a.so
 main: /usr/lib/aarch64-linux-gnu/libyaml-cpp.so.0.6.2
+main: ../3rdparty/jpeg_turbo/Linux/aarch64/libturbojpeg.a
+main: ../3rdparty/librga/Linux/aarch64/librga.a
 main: /usr/local/lib/libopencv_imgcodecs.so.4.10.0
 main: /usr/local/lib/libopencv_dnn.so.4.10.0
 main: /usr/local/lib/libopencv_calib3d.so.4.10.0
@@ -142,7 +193,7 @@ main: /usr/local/lib/libopencv_flann.so.4.10.0
 main: /usr/local/lib/libopencv_imgproc.so.4.10.0
 main: /usr/local/lib/libopencv_core.so.4.10.0
 main: CMakeFiles/main.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/cat/lyh/rk3588lyh/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/cat/lyh/rk3588lyh/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable main"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/main.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
