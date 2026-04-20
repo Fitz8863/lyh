@@ -60,6 +60,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/camera_capture_helper.dir/DependInfo.cmake"
   "CMakeFiles/main.dir/DependInfo.cmake"
   "utils.out/CMakeFiles/imageutils.dir/DependInfo.cmake"
   "utils.out/CMakeFiles/imagedrawing.dir/DependInfo.cmake"

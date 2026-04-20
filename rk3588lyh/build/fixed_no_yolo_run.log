@@ -1,0 +1,35 @@
+已启动摄像头: 001 (校园大门)
+YOLOv8 推理已禁用 (use_yolo: false)
+所有服务已启动，按 Ctrl+C 退出...
+正在通过 V4L2 打开摄像头 (MJPEG 640x480@25fps)...
+MQTT 连接成功，心跳主题: rk3588lyh/info
+摄像头后端: V4L2, 当前 FOURCC=MJPG
+RTSP 推流已启动 → rtsp://10.60.83.159:8554/rk3588lyh
+ffmpeg version 03498fe Copyright (c) 2000-2023 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.4.0-1ubuntu1~20.04.3)
+  configuration: --prefix=/usr --enable-gpl --enable-version3 --enable-libdrm --enable-rkmpp --enable-rkrga
+  libavutil      58. 29.100 / 58. 29.100
+  libavcodec     60. 31.102 / 60. 31.102
+  libavformat    60. 16.100 / 60. 16.100
+  libavdevice    60.  3.100 / 60.  3.100
+  libavfilter     9. 12.100 /  9. 12.100
+  libswscale      7.  5.100 /  7.  5.100
+  libswresample   4. 12.100 /  4. 12.100
+  libpostproc    57.  3.100 / 57.  3.100
+Input #0, rawvideo, from 'fd:':
+  Duration: N/A, start: 0.000000, bitrate: 184320 kb/s
+  Stream #0:0: Video: rawvideo (BGR[24] / 0x18524742), bgr24, 640x480, 184320 kb/s, 25 tbr, 25 tbn
+Stream mapping:
+  Stream #0:0 -> #0:0 (rawvideo (native) -> h264 (h264_rkmpp))
+Output #0, rtsp, to 'rtsp://10.60.83.159:8554/rk3588lyh':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Stream #0:0: Video: h264 (High), bgr24(progressive), 640x480, q=2-31, 4000 kb/s, 25 fps, 90k tbn
+    Metadata:
+      encoder         : Lavc60.31.102 h264_rkmpp
+frame=    1 fps=0.0 q=20.0 size=N/A time=00:00:00.00 bitrate=N/A speed=   0x    frame=   10 fps=0.0 q=16.0 size=N/A time=00:00:00.36 bitrate=N/A speed=0.674x    frame=   19 fps= 18 q=12.0 size=N/A time=00:00:00.72 bitrate=N/A speed=0.681x    frame=   25 fps= 16 q=8.0 size=N/A time=00:00:00.96 bitrate=N/A speed=0.616x    frame=   32 fps= 15 q=1.0 size=N/A time=00:00:01.24 bitrate=N/A speed=0.579x    frame=   38 fps= 14 q=1.0 size=N/A time=00:00:01.48 bitrate=N/A speed=0.56x    frame=   45 fps= 14 q=1.0 size=N/A time=00:00:01.76 bitrate=N/A speed=0.546x    frame=   51 fps= 14 q=1.0 size=N/A time=00:00:02.00 bitrate=N/A speed=0.537x    frame=   55 fps= 13 q=1.0 size=N/A time=00:00:02.16 bitrate=N/A speed=0.51x    [out#0/rtsp @ 0x559c123690] video:2kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+frame=   55 fps= 13 q=1.0 Lsize=N/A time=00:00:02.16 bitrate=N/A speed=0.509x    
+摄像头推流线程已退出
+正在停止服务...
+MQTT 客户端已断开
+所有服务已停止

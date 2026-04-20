@@ -14,8 +14,8 @@ camera:
   rtsp_url: "rtsp://10.60.83.159:8554/rk3588lyh"
   http_url: "http://10.60.83.159:8889/rk3588lyh"
   device: "/dev/video0"
-  width: 640
-  height: 480
+  width: 1920
+  height: 1080
   fps: 25
   use_yolo: true
   detector:

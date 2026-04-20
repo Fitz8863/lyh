@@ -1,9 +1,10 @@
 /home/cat/lyh/rk3588lyh/build/CMakeFiles/install/strip.dir
-/home/cat/lyh/rk3588lyh/build/CMakeFiles/install/local.dir
 /home/cat/lyh/rk3588lyh/build/CMakeFiles/install.dir
 /home/cat/lyh/rk3588lyh/build/CMakeFiles/list_install_components.dir
 /home/cat/lyh/rk3588lyh/build/CMakeFiles/rebuild_cache.dir
 /home/cat/lyh/rk3588lyh/build/CMakeFiles/edit_cache.dir
+/home/cat/lyh/rk3588lyh/build/CMakeFiles/install/local.dir
+/home/cat/lyh/rk3588lyh/build/CMakeFiles/camera_capture_helper.dir
 /home/cat/lyh/rk3588lyh/build/CMakeFiles/main.dir
 /home/cat/lyh/rk3588lyh/build/3rdparty.out/CMakeFiles/install/strip.dir
 /home/cat/lyh/rk3588lyh/build/3rdparty.out/CMakeFiles/install/local.dir

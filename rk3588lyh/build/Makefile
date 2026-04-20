@@ -68,18 +68,6 @@ install/strip/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
 
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local/fast
-
 # Special rule for the target install
 install: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
@@ -124,6 +112,18 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/cat/lyh/rk3588lyh/build/CMakeFiles /home/cat/lyh/rk3588lyh/build/CMakeFiles/progress.marks
@@ -155,6 +155,19 @@ preinstall/fast:
 depend:
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
+
+#=============================================================================
+# Target rules for targets named camera_capture_helper
+
+# Build rule for target.
+camera_capture_helper: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 camera_capture_helper
+.PHONY : camera_capture_helper
+
+# fast build rule for target.
+camera_capture_helper/fast:
+	$(MAKE) -f CMakeFiles/camera_capture_helper.dir/build.make CMakeFiles/camera_capture_helper.dir/build
+.PHONY : camera_capture_helper/fast
 
 #=============================================================================
 # Target rules for targets named main
@@ -207,6 +220,33 @@ fileutils: cmake_check_build_system
 fileutils/fast:
 	$(MAKE) -f utils.out/CMakeFiles/fileutils.dir/build.make utils.out/CMakeFiles/fileutils.dir/build
 .PHONY : fileutils/fast
+
+src/camera_capture_helper.o: src/camera_capture_helper.cc.o
+
+.PHONY : src/camera_capture_helper.o
+
+# target to build an object file
+src/camera_capture_helper.cc.o:
+	$(MAKE) -f CMakeFiles/camera_capture_helper.dir/build.make CMakeFiles/camera_capture_helper.dir/src/camera_capture_helper.cc.o
+.PHONY : src/camera_capture_helper.cc.o
+
+src/camera_capture_helper.i: src/camera_capture_helper.cc.i
+
+.PHONY : src/camera_capture_helper.i
+
+# target to preprocess a source file
+src/camera_capture_helper.cc.i:
+	$(MAKE) -f CMakeFiles/camera_capture_helper.dir/build.make CMakeFiles/camera_capture_helper.dir/src/camera_capture_helper.cc.i
+.PHONY : src/camera_capture_helper.cc.i
+
+src/camera_capture_helper.s: src/camera_capture_helper.cc.s
+
+.PHONY : src/camera_capture_helper.s
+
+# target to generate assembly for a file
+src/camera_capture_helper.cc.s:
+	$(MAKE) -f CMakeFiles/camera_capture_helper.dir/build.make CMakeFiles/camera_capture_helper.dir/src/camera_capture_helper.cc.s
+.PHONY : src/camera_capture_helper.cc.s
 
 src/camera_status.o: src/camera_status.cc.o
 
@@ -404,15 +444,19 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... install/strip"
-	@echo "... install/local"
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
+	@echo "... install/local"
+	@echo "... camera_capture_helper"
 	@echo "... main"
 	@echo "... imageutils"
 	@echo "... imagedrawing"
 	@echo "... fileutils"
+	@echo "... src/camera_capture_helper.o"
+	@echo "... src/camera_capture_helper.i"
+	@echo "... src/camera_capture_helper.s"
 	@echo "... src/camera_status.o"
 	@echo "... src/camera_status.i"
 	@echo "... src/camera_status.s"

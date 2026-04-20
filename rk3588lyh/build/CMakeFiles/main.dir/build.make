@@ -184,7 +184,7 @@ main: /usr/local/lib/libopencv_videoio.so.4.10.0
 main: /usr/local/lib/libpaho-mqtt3a.so
 main: /usr/lib/aarch64-linux-gnu/libyaml-cpp.so.0.6.2
 main: ../3rdparty/jpeg_turbo/Linux/aarch64/libturbojpeg.a
-main: ../3rdparty/librga/Linux/aarch64/librga.a
+main: ../3rdparty/librga/aarch64/librga.a
 main: /usr/local/lib/libopencv_imgcodecs.so.4.10.0
 main: /usr/local/lib/libopencv_dnn.so.4.10.0
 main: /usr/local/lib/libopencv_calib3d.so.4.10.0

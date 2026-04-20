@@ -32,6 +32,10 @@ add_executable(main
     src/postprocess.cc
 )
 
+add_executable(camera_capture_helper
+    src/camera_capture_helper.cc
+)
+
 include_directories(${GST_INCLUDE_DIRS})
 
 target_link_libraries(main
@@ -44,6 +48,10 @@ target_link_libraries(main
     paho-mqttpp3
     yaml-cpp
     ${GST_LIBRARIES}
+)
+
+target_link_libraries(camera_capture_helper
+    ${OpenCV_LIBS}
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

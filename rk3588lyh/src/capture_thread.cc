@@ -2,8 +2,60 @@
 #include "global_running.h"
 #include "postprocess.h"
 #include <opencv2/opencv.hpp>
-#include <iostream>
 #include <chrono>
+#include <filesystem>
+#include <iostream>
+#include <unistd.h>
+
+namespace
+{
+std::string QuoteShellArg(const std::string &value)
+{
+    std::string quoted = "'";
+    for (char c : value)
+    {
+        if (c == '\'')
+        {
+            quoted += "'\\''";
+        }
+        else
+        {
+            quoted += c;
+        }
+    }
+    quoted += "'";
+    return quoted;
+}
+
+std::string GetSiblingExecutablePath(const std::string &executable_name)
+{
+    char exe_path[4096];
+    const ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    if (len <= 0)
+    {
+        return executable_name;
+    }
+
+    exe_path[len] = '\0';
+    const std::filesystem::path current_binary(exe_path);
+    return (current_binary.parent_path() / executable_name).string();
+}
+
+bool ReadExact(FILE *pipe, unsigned char *buffer, size_t bytes_to_read)
+{
+    size_t total_read = 0;
+    while (total_read < bytes_to_read)
+    {
+        const size_t n = fread(buffer + total_read, 1, bytes_to_read - total_read, pipe);
+        if (n == 0)
+        {
+            return false;
+        }
+        total_read += n;
+    }
+    return true;
+}
+} // namespace
 
 CaptureThread::CaptureThread(CameraStatus &status, const std::string &device,
                              int width, int height, int fps, const std::string &rtsp_url,
@@ -45,39 +97,35 @@ bool CaptureThread::IsRunning() const
 
 void CaptureThread::Run()
 {
-    std::string read_pipeline =
-        "v4l2src device=" + device_ + " ! "
-        "image/jpeg, width=(int)" + std::to_string(width_) +
-        ", height=(int)" + std::to_string(height_) +
-        ", framerate=" + std::to_string(fps_) + "/1 ! "
-        "jpegdec ! "
-        "videoconvert ! video/x-raw, format=BGR ! "
-        "appsink drop=1 max-buffers=1";
+    std::cout << "正在通过独立 helper 打开摄像头 (MJPEG " << width_ << "x" << height_ << "@" << fps_ << "fps)..." << std::endl;
 
-    std::cout << "正在打开摄像头 (MJPEG " << width_ << "x" << height_ << "@" << fps_ << "fps)..." << std::endl;
+    const std::string helper_path = GetSiblingExecutablePath("camera_capture_helper");
+    const std::string capture_cmd =
+        QuoteShellArg(helper_path) + " " +
+        QuoteShellArg(device_) + " " +
+        std::to_string(width_) + " " +
+        std::to_string(height_) + " " +
+        std::to_string(fps_);
 
-    cv::VideoCapture cap(read_pipeline, cv::CAP_GSTREAMER);
-    if (!cap.isOpened()) {
-        std::cerr << "错误：无法打开摄像头 pipeline！" << std::endl;
+    FILE *capture_pipe = popen(capture_cmd.c_str(), "r");
+    if (!capture_pipe)
+    {
+        std::cerr << "错误：无法启动摄像头 helper！" << std::endl;
         running_ = false;
         status_.running.store(false);
         return;
     }
 
-    // cv::VideoCapture cap;
-    // cap.open(0, cv::CAP_V4L2);
-    // // 打开后立即设置参数
-    // cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G')); // 强制使用 MJPEG 格式
-    // cap.set(cv::CAP_PROP_FRAME_WIDTH, width_);  // 宽
-    // cap.set(cv::CAP_PROP_FRAME_HEIGHT, height_); // 高
-    // cap.set(cv::CAP_PROP_FPS, fps_);            // 帧率
-    // if (!cap.isOpened())
-    // {
-    //     std::cerr << "错误：无法打开摄像头 pipeline！" << std::endl;
-    //     running_ = false;
-    //     status_.running.store(false);
-    //     return;
-    // }
+    const size_t frame_bytes = static_cast<size_t>(width_) * static_cast<size_t>(height_) * 3U;
+    cv::Mat frame(height_, width_, CV_8UC3);
+    if (!ReadExact(capture_pipe, frame.data, frame_bytes))
+    {
+        std::cerr << "错误：无法从 helper 读取首帧！" << std::endl;
+        pclose(capture_pipe);
+        running_ = false;
+        status_.running.store(false);
+        return;
+    }
 
     // 使用 ffmpeg 管道推流（和 before.cc 相同的方式）
     std::string cmd =
@@ -87,6 +135,10 @@ void CaptureThread::Run()
         " -r " + std::to_string(fps_) +
         " -i - "
         "-c:v h264_rkmpp "
+        "-b:v 4M -maxrate 4M -bufsize 8M "
+        "-g " + std::to_string(fps_) +
+        " -keyint_min " + std::to_string(fps_) +
+        " -bf 0 "
         "-fflags nobuffer -flags low_delay "
         "-rtsp_transport udp "
         "-f rtsp " +
@@ -96,7 +148,7 @@ void CaptureThread::Run()
     if (!ffmpeg)
     {
         std::cerr << "错误：无法打开 ffmpeg 管道！" << std::endl;
-        cap.release();
+        pclose(capture_pipe);
         running_ = false;
         status_.running.store(false);
         return;
@@ -114,14 +166,20 @@ void CaptureThread::Run()
         std::cout << "YOLOv8 推理已启用（异步模式）" << std::endl;
     }
 
-    cv::Mat frame;
+    if (detector_ready)
+    {
+        detector_->submit(frame);
+    }
+    else
+    {
+        fwrite(frame.data, 1, width_ * height_ * 3, ffmpeg);
+    }
+
     while (running_ && status_.running.load() && g_running)
     {
-        cap >> frame;
-
-        if (frame.empty())
+        if (!ReadExact(capture_pipe, frame.data, frame_bytes))
         {
-            std::cerr << "读取摄像头帧失败！" << std::endl;
+            std::cerr << "读取 helper 输出帧失败！" << std::endl;
             break;
         }
 
@@ -161,7 +219,7 @@ void CaptureThread::Run()
         }
     }
 
-    cap.release();
+    pclose(capture_pipe);
     pclose(ffmpeg);
     std::cout << "摄像头推流线程已退出" << std::endl;
 }
