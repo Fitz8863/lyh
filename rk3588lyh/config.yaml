@@ -14,10 +14,10 @@ camera:
   rtsp_url: "rtsp://10.60.83.159:8554/rk3588lyh"
   http_url: "http://10.60.83.159:8889/rk3588lyh"
   device: "/dev/video0"
-  width: 1920
-  height: 1080
+  width: 640
+  height: 480
   fps: 25
-  use_yolo: false
+  use_yolo: true
   detector:
     model_path: "/home/cat/lyh/rk3588lyh/model/yolov8s.rknn"
     mqtt_report_topic: "rk3588lyh/001/report"
