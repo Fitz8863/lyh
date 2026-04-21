@@ -63,6 +63,7 @@ int main()
 
     YoloDetector *detector = nullptr;
     std::string mqtt_report_topic;
+    DetectionTriggerConfig trigger_config;
 
     if (use_yolo)
     {
@@ -74,6 +75,15 @@ int main()
             mqtt_report_topic = det_cfg["mqtt_report_topic"].as<std::string>();
             float nms_threshold = det_cfg["nms_threshold"].as<float>();
             float box_conf_threshold = det_cfg["confidence_threshold"].as<float>();
+
+            trigger_config.window_seconds = det_cfg["window_seconds"].as<int>();
+            trigger_config.target_class_id = det_cfg["target_class_id"].as<int>();
+            trigger_config.frame_threshold = det_cfg["frame_threshold"].as<int>();
+            trigger_config.trigger_count = det_cfg["trigger_count"].as<int>();
+            trigger_config.enabled = trigger_config.window_seconds > 0 &&
+                                     trigger_config.frame_threshold > 0 &&
+                                     trigger_config.trigger_count > 0 &&
+                                     trigger_config.target_class_id >= 0;
 
             detector = new YoloDetector(model_path, thread_num, nms_threshold, box_conf_threshold);
             int ret = detector->init();
@@ -98,7 +108,7 @@ int main()
         std::cout << "YOLOv8 推理已禁用 (use_yolo: false)" << std::endl;
     }
 
-    CaptureThread capture_thread(camera_status, device, width, height, fps, rtsp_url, detector);
+    CaptureThread capture_thread(camera_status, device, width, height, fps, rtsp_url, detector, trigger_config);
     capture_thread.Start();
 
     PublisherThread publisher(camera_status, device_id, mqtt_server, mqtt_topic, heart_rate_ms, mqtt_report_topic);

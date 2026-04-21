@@ -5,11 +5,38 @@
 #include <chrono>
 #include <iostream>
 
+namespace
+{
+bool ContainsTargetClass(const object_detect_result_list& results, int target_class_id)
+{
+    for (int i = 0; i < results.count; ++i)
+    {
+        if (results.results[i].cls_id == target_class_id)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void DrawFpsOverlay(cv::Mat& frame, float fps)
+{
+    const std::string text = cv::format("FPS: %.1f", fps);
+    const double font_scale = 1.0;
+    const int thickness = 2;
+    int baseline = 0;
+    const cv::Size text_size = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, font_scale, thickness, &baseline);
+    const int margin = 20;
+    const cv::Point origin(frame.cols - text_size.width - margin, margin + text_size.height);
+    cv::putText(frame, text, origin, cv::FONT_HERSHEY_SIMPLEX, font_scale, cv::Scalar(0, 255, 0), thickness, cv::LINE_AA);
+}
+}
+
 CaptureThread::CaptureThread(CameraStatus &status, const std::string &device,
                              int width, int height, int fps, const std::string &rtsp_url,
-                             YoloDetector *detector)
+                             YoloDetector *detector, const DetectionTriggerConfig &trigger_config)
     : status_(status), device_(device), width_(width), height_(height),
-      fps_(fps), rtsp_url_(rtsp_url), running_(false), detector_(detector) {}
+      fps_(fps), rtsp_url_(rtsp_url), running_(false), detector_(detector), trigger_config_(trigger_config) {}
 
 CaptureThread::~CaptureThread()
 {
@@ -109,6 +136,11 @@ void CaptureThread::Run()
     int frame_count = 0;
     float current_fps = 0.0f;
     bool detector_ready = (detector_ != nullptr);
+    const bool trigger_enabled = detector_ready && trigger_config_.enabled;
+    auto trigger_window_start = std::chrono::steady_clock::now();
+    int trigger_match_frames = 0;
+    int trigger_success_count = 0;
+    object_detect_result_list last_matching_results{};
 
     if (detector_ready)
     {
@@ -121,6 +153,7 @@ void CaptureThread::Run()
     }
     else
     {
+        DrawFpsOverlay(frame, current_fps);
         fwrite(frame.data, 1, width_ * height_ * 3, ffmpeg);
     }
 
@@ -154,17 +187,63 @@ void CaptureThread::Run()
             object_detect_result_list results;
             if (detector_->retrieve(annotated_frame, results))
             {
+                if (trigger_enabled)
+                {
+                    const auto trigger_now = std::chrono::steady_clock::now();
+                    const auto trigger_elapsed = std::chrono::duration_cast<std::chrono::seconds>(trigger_now - trigger_window_start).count();
+                    if (trigger_elapsed >= trigger_config_.window_seconds)
+                    {
+                        if (trigger_match_frames >= trigger_config_.frame_threshold)
+                        {
+                            trigger_success_count++;
+                            std::cout << "[Trigger] window=" << trigger_config_.window_seconds
+                                      << "s target_class_id=" << trigger_config_.target_class_id
+                                      << " match_frames=" << trigger_match_frames
+                                      << " >= threshold=" << trigger_config_.frame_threshold
+                                      << " => success_count=" << trigger_success_count
+                                      << "/" << trigger_config_.trigger_count << std::endl;
+                            if (trigger_success_count >= trigger_config_.trigger_count)
+                            {
+                                status_.QueueDetectionReport(last_matching_results, trigger_match_frames, trigger_success_count);
+                                std::cout << "[Trigger] MQTT report queued: success_count reached "
+                                          << trigger_config_.trigger_count << std::endl;
+                                trigger_success_count = 0;
+                            }
+                        }
+                        else
+                        {
+                            std::cout << "[Trigger] window=" << trigger_config_.window_seconds
+                                      << "s target_class_id=" << trigger_config_.target_class_id
+                                      << " match_frames=" << trigger_match_frames
+                                      << " < threshold=" << trigger_config_.frame_threshold
+                                      << " => success_count stays " << trigger_success_count
+                                      << "/" << trigger_config_.trigger_count << std::endl;
+                        }
+                        trigger_window_start = trigger_now;
+                        trigger_match_frames = 0;
+                    }
+
+                    if (ContainsTargetClass(results, trigger_config_.target_class_id))
+                    {
+                        trigger_match_frames++;
+                        last_matching_results = results;
+                    }
+                }
+
                 draw_results(annotated_frame, results);
+                DrawFpsOverlay(annotated_frame, current_fps);
                 status_.SetDetectResults(results);
                 fwrite(annotated_frame.data, 1, width_ * height_ * 3, ffmpeg);
             }
             else
             {
+                DrawFpsOverlay(frame, current_fps);
                 fwrite(frame.data, 1, width_ * height_ * 3, ffmpeg);
             }
         }
         else
         {
+            DrawFpsOverlay(frame, current_fps);
             fwrite(frame.data, 1, width_ * height_ * 3, ffmpeg);
         }
     }

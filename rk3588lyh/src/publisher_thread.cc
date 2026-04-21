@@ -71,9 +71,7 @@ std::string PublisherThread::BuildJsonMessage() {
     return oss.str();
 }
 
-std::string PublisherThread::BuildDetectionMessage() {
-    object_detect_result_list results = status_.GetDetectResults();
-    
+std::string PublisherThread::BuildDetectionMessage(const object_detect_result_list& results, int match_frames, int success_count) {
     if (results.count <= 0) {
         return "";
     }
@@ -94,19 +92,14 @@ std::string PublisherThread::BuildDetectionMessage() {
         const auto& det = results.results[i];
         oss << "{"
             << "\"class\":\"" << coco_cls_to_name(det.cls_id) << "\","
-            << "\"class_id\":" << det.cls_id << ","
             << "\"confidence\":" << (det.prop * 100) << ","
-            << "\"box\":{"
-            << "\"left\":" << det.box.left << ","
-            << "\"top\":" << det.box.top << ","
-            << "\"right\":" << det.box.right << ","
-            << "\"bottom\":" << det.box.bottom
-            << "}"
             << "}";
     }
     
     oss << "],"
-        << "\"count\":" << results.count
+        << "\"count\":" << results.count << ","
+        << "\"window_match_frames\":" << match_frames << ","
+        << "\"trigger_success_count\":" << success_count
         << "}";
     
     return oss.str();
@@ -134,13 +127,17 @@ void PublisherThread::Run() {
             auto msg = mqtt::make_message(topic_, payload, 1, false);
             client_->publish(msg)->wait();
             
-            if (!report_topic_.empty() && status_.has_new_detection.load()) {
-                std::string det_payload = BuildDetectionMessage();
-                if (!det_payload.empty()) {
-                    auto det_msg = mqtt::make_message(report_topic_, det_payload, 1, false);
-                    client_->publish(det_msg)->wait();
+            if (!report_topic_.empty()) {
+                object_detect_result_list report_results;
+                int match_frames = 0;
+                int success_count = 0;
+                if (status_.ConsumeDetectionReport(report_results, match_frames, success_count)) {
+                    std::string det_payload = BuildDetectionMessage(report_results, match_frames, success_count);
+                    if (!det_payload.empty()) {
+                        auto det_msg = mqtt::make_message(report_topic_, det_payload, 1, false);
+                        client_->publish(det_msg)->wait();
+                    }
                 }
-                status_.has_new_detection.store(false);
             }
             
             auto elapsed = std::chrono::steady_clock::now() - start;

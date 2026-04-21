@@ -1,0 +1,1 @@
+{"device_id":"rk3588lyh","camera_id":"001","timestamp_ns":1776765691921136404,"detections":[{"class":"chair","confidence":88.56,},{"class":"chair","confidence":59.56,}],"count":2,"window_match_frames":19,"trigger_success_count":1}

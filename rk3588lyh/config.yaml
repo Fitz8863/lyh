@@ -10,7 +10,7 @@ mqtt:
 
 camera:
   id: "001"
-  location: "校园大门"
+  location: "前门大院"
   rtsp_url: "rtsp://10.60.83.159:8554/rk3588lyh"
   http_url: "http://10.60.83.159:8889/rk3588lyh"
   device: "/dev/video0"
@@ -19,6 +19,10 @@ camera:
   fps: 30
   use_yolo: true
   detector:
+    window_seconds: 5  #判定窗口的时长
+    target_class_id: 0  # 目标要判断的类对应id
+    frame_threshold: 40 # 判断窗口下帧的阈值
+    trigger_count: 3
     model_path: "/home/cat/lyh/rk3588lyh/model/yolov8s.rknn"
     mqtt_report_topic: "rk3588lyh/001/report"
     confidence_threshold: 0.50

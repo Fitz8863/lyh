@@ -23,7 +23,7 @@ public:
     bool IsConnected() const;
     
     std::string BuildJsonMessage();
-    std::string BuildDetectionMessage();
+    std::string BuildDetectionMessage(const object_detect_result_list& results, int match_frames, int success_count);
     
 private:
     void Run();

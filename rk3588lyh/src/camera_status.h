@@ -23,6 +23,12 @@ struct CameraStatus {
     mutable std::mutex detect_mutex;
     object_detect_result_list detect_results;
     std::atomic<bool> has_new_detection{false};
+
+    mutable std::mutex report_mutex;
+    object_detect_result_list pending_report_results;
+    int pending_report_match_frames = 0;
+    int pending_report_success_count = 0;
+    std::atomic<bool> has_pending_report{false};
     
     CameraStatus() : fps(0.0f), width(1920), height(1080), running(true), timestamp_ns(0) {}
     
@@ -56,6 +62,26 @@ struct CameraStatus {
     object_detect_result_list GetDetectResults() const {
         std::lock_guard<std::mutex> lock(detect_mutex);
         return detect_results;
+    }
+
+    void QueueDetectionReport(const object_detect_result_list& results, int match_frames, int success_count) {
+        std::lock_guard<std::mutex> lock(report_mutex);
+        pending_report_results = results;
+        pending_report_match_frames = match_frames;
+        pending_report_success_count = success_count;
+        has_pending_report.store(true);
+    }
+
+    bool ConsumeDetectionReport(object_detect_result_list& results, int& match_frames, int& success_count) {
+        std::lock_guard<std::mutex> lock(report_mutex);
+        if (!has_pending_report.load()) {
+            return false;
+        }
+        results = pending_report_results;
+        match_frames = pending_report_match_frames;
+        success_count = pending_report_success_count;
+        has_pending_report.store(false);
+        return true;
     }
 };
 
