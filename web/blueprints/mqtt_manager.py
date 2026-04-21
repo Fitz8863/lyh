@@ -69,7 +69,7 @@ class MQTTManager:
                 self.last_info_time = time.time()
                 self.connected = True  # 收到消息说明连接肯定正常
                 
-                print(f"收到设备心跳: {device_id}, 摄像头: {camera_info.get('id', 'unknown')} @ {camera_info.get('location', 'unknown')}")
+                # print(f"收到设备心跳: {device_id}, 摄像头: {camera_info.get('id', 'unknown')} @ {camera_info.get('location', 'unknown')}")
             except Exception as e:
                 print(f"解析 rk3588lyh/info 消息失败: {e}")
             
@@ -201,7 +201,7 @@ def init_mqtt(app):
         port=1883,
         username='',
         password='',
-        topic_prefix=app.config.get('MQTT_TOPIC_PREFIX', 'RK3588/camera')
+        topic_prefix=app.config.get('MQTT_TOPIC_PREFIX', 'rk3588lyh/camera')
     )
     return mqtt_manager
 

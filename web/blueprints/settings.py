@@ -57,7 +57,7 @@ def mqtt_connect():
             port=port,
             username=username,
             password=password,
-            topic_prefix='RK3588/camera'
+            topic_prefix='rk3588lyh/camera'
         )
         
         success = mqtt_module.mqtt_manager.connect()
@@ -128,38 +128,6 @@ def get_mqtt_configs():
             'is_active': c.is_active
         } for c in unique_configs]
     }), 200
-
-@settings_bp.route('/api/camera/config', methods=['POST'])
-def send_camera_config():
-    """发送摄像头配置到MQTT"""
-    data = request.json
-    device_id = data.get('device_id')
-    camera_id = data.get('camera_id')
-    config_type = data.get('config_type')
-    config_value = data.get('config_value')
-    
-    if not device_id or not camera_id or not config_type:
-        return jsonify({'error': '缺少必要参数'}), 400
-    
-    try:
-        import blueprints.mqtt_manager as mqtt_module
-        if not mqtt_module.mqtt_manager or not mqtt_module.mqtt_manager.connected:
-            return jsonify({'error': 'MQTT未连接'}), 400
-        
-        payload = {
-            'type': config_type,
-            'value': config_value
-        }
-        
-        success, message = mqtt_module.mqtt_manager.send_camera_command(device_id, camera_id, payload)
-        
-        if success:
-            return jsonify({'message': '配置发送成功'}), 200
-        else:
-            return jsonify({'error': message}), 500
-            
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @settings_bp.route('/api/mqtt/ptz', methods=['POST'])
 def mqtt_ptz():
