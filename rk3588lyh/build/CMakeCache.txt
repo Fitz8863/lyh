@@ -245,12 +245,6 @@ rknn_model_zoo_3rdparty_libs_BINARY_DIR:STATIC=/home/cat/lyh/rk3588lyh/build/3rd
 //Value Computed by CMake
 rknn_model_zoo_3rdparty_libs_SOURCE_DIR:STATIC=/home/cat/lyh/rk3588lyh/3rdparty
 
-//Value Computed by CMake
-rknn_model_zoo_utils_BINARY_DIR:STATIC=/home/cat/lyh/rk3588lyh/build/utils.out
-
-//Value Computed by CMake
-rknn_model_zoo_utils_SOURCE_DIR:STATIC=/home/cat/lyh/rk3588lyh/utils
-
 //The directory containing a CMake configuration file for yaml-cpp.
 yaml-cpp_DIR:PATH=/usr/lib/aarch64-linux-gnu/cmake/yaml-cpp
 

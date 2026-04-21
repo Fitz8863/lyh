@@ -1,35 +1,0 @@
-已启动摄像头: 001 (校园大门)
-YOLOv8 推理已禁用 (use_yolo: false)
-所有服务已启动，按 Ctrl+C 退出...
-正在通过 V4L2 打开摄像头 (MJPEG 640x480@25fps)...
-MQTT 连接成功，心跳主题: rk3588lyh/info
-摄像头后端: V4L2, 当前 FOURCC=MJPG
-RTSP 推流已启动 → rtsp://10.60.83.159:8554/rk3588lyh
-ffmpeg version 03498fe Copyright (c) 2000-2023 the FFmpeg developers
-  built with gcc 9 (Ubuntu 9.4.0-1ubuntu1~20.04.3)
-  configuration: --prefix=/usr --enable-gpl --enable-version3 --enable-libdrm --enable-rkmpp --enable-rkrga
-  libavutil      58. 29.100 / 58. 29.100
-  libavcodec     60. 31.102 / 60. 31.102
-  libavformat    60. 16.100 / 60. 16.100
-  libavdevice    60.  3.100 / 60.  3.100
-  libavfilter     9. 12.100 /  9. 12.100
-  libswscale      7.  5.100 /  7.  5.100
-  libswresample   4. 12.100 /  4. 12.100
-  libpostproc    57.  3.100 / 57.  3.100
-Input #0, rawvideo, from 'fd:':
-  Duration: N/A, start: 0.000000, bitrate: 184320 kb/s
-  Stream #0:0: Video: rawvideo (BGR[24] / 0x18524742), bgr24, 640x480, 184320 kb/s, 25 tbr, 25 tbn
-Stream mapping:
-  Stream #0:0 -> #0:0 (rawvideo (native) -> h264 (h264_rkmpp))
-Output #0, rtsp, to 'rtsp://10.60.83.159:8554/rk3588lyh':
-  Metadata:
-    encoder         : Lavf60.16.100
-  Stream #0:0: Video: h264 (High), bgr24(progressive), 640x480, q=2-31, 2000 kb/s, 25 fps, 90k tbn
-    Metadata:
-      encoder         : Lavc60.31.102 h264_rkmpp
-frame=    1 fps=0.0 q=20.0 size=N/A time=00:00:00.00 bitrate=N/A speed=   0x    frame=    9 fps=0.0 q=13.0 size=N/A time=00:00:00.36 bitrate=N/A speed=0.669x    frame=   18 fps= 16 q=1.0 size=N/A time=00:00:00.72 bitrate=N/A speed=0.654x    frame=   24 fps= 15 q=1.0 size=N/A time=00:00:00.96 bitrate=N/A speed=0.599x    frame=   31 fps= 14 q=1.0 size=N/A time=00:00:01.24 bitrate=N/A speed=0.567x    frame=   38 fps= 14 q=1.0 size=N/A time=00:00:01.52 bitrate=N/A speed=0.549x    frame=   45 fps= 13 q=1.0 size=N/A time=00:00:01.80 bitrate=N/A speed=0.537x    frame=   52 fps= 13 q=1.0 size=N/A time=00:00:02.08 bitrate=N/A speed=0.529x    frame=   58 fps= 13 q=1.0 size=N/A time=00:00:02.32 bitrate=N/A speed=0.523x    frame=   64 fps= 13 q=1.0 size=N/A time=00:00:02.56 bitrate=N/A speed=0.519x    frame=   71 fps= 13 q=1.0 size=N/A time=00:00:02.84 bitrate=N/A speed=0.515x    frame=   78 fps= 13 q=1.0 size=N/A time=00:00:03.12 bitrate=N/A speed=0.511x    frame=   84 fps= 13 q=1.0 size=N/A time=00:00:03.36 bitrate=N/A speed=0.509x    frame=   90 fps= 13 q=1.0 size=N/A time=00:00:03.60 bitrate=N/A speed=0.507x    frame=   97 fps= 13 q=1.0 size=N/A time=00:00:03.88 bitrate=N/A speed=0.505x    frame=  103 fps= 13 q=1.0 size=N/A time=00:00:04.12 bitrate=N/A speed=0.503x    frame=  110 fps= 13 q=1.0 size=N/A time=00:00:04.40 bitrate=N/A speed=0.502x    frame=  117 fps= 13 q=1.0 size=N/A time=00:00:04.68 bitrate=N/A speed= 0.5x    frame=  123 fps= 12 q=1.0 size=N/A time=00:00:04.92 bitrate=N/A speed=0.499x    frame=  130 fps= 12 q=1.0 size=N/A time=00:00:05.20 bitrate=N/A speed=0.498x    frame=  137 fps= 12 q=1.0 size=N/A time=00:00:05.48 bitrate=N/A speed=0.497x    frame=  143 fps= 12 q=1.0 size=N/A time=00:00:05.72 bitrate=N/A speed=0.497x    frame=  150 fps= 12 q=1.0 size=N/A time=00:00:06.00 bitrate=N/A speed=0.496x    frame=  156 fps= 12 q=1.0 size=N/A time=00:00:06.24 bitrate=N/A speed=0.495x    frame=  162 fps= 12 q=1.0 size=N/A time=00:00:06.48 bitrate=N/A speed=0.495x    frame=  168 fps= 12 q=1.0 size=N/A time=00:00:06.72 bitrate=N/A speed=0.494x    frame=  175 fps= 12 q=1.0 size=N/A time=00:00:07.00 bitrate=N/A speed=0.493x    frame=  182 fps= 12 q=1.0 size=N/A time=00:00:07.28 bitrate=N/A speed=0.493x    frame=  189 fps= 12 q=1.0 size=N/A time=00:00:07.56 bitrate=N/A speed=0.492x    frame=  196 fps= 12 q=1.0 size=N/A time=00:00:07.84 bitrate=N/A speed=0.492x    frame=  203 fps= 12 q=1.0 size=N/A time=00:00:08.12 bitrate=N/A speed=0.492x    frame=  209 fps= 12 q=1.0 size=N/A time=00:00:08.36 bitrate=N/A speed=0.491x    frame=  215 fps= 12 q=1.0 size=N/A time=00:00:08.60 bitrate=N/A speed=0.491x    frame=  221 fps= 12 q=1.0 size=N/A time=00:00:08.84 bitrate=N/A speed=0.491x    frame=  228 fps= 12 q=1.0 size=N/A time=00:00:09.12 bitrate=N/A speed=0.49x    frame=  234 fps= 12 q=1.0 size=N/A time=00:00:09.36 bitrate=N/A speed=0.49x    frame=  242 fps= 12 q=1.0 size=N/A time=00:00:09.64 bitrate=N/A speed=0.49x    frame=  247 fps= 12 q=1.0 size=N/A time=00:00:09.88 bitrate=N/A speed=0.489x    frame=  255 fps= 12 q=1.0 size=N/A time=00:00:10.16 bitrate=N/A speed=0.489x    frame=  261 fps= 12 q=1.0 size=N/A time=00:00:10.40 bitrate=N/A speed=0.489x    正在停止服务...
-[out#0/rtsp @ 0x5574f64650] video:7kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-frame=  262 fps= 12 q=1.0 Lsize=N/A time=00:00:10.44 bitrate=N/A speed=0.484x    
-摄像头推流线程已退出
-MQTT 客户端已断开
-所有服务已停止

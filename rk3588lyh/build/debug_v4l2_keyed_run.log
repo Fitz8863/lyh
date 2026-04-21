@@ -1,25 +1,0 @@
-ffmpeg version 03498fe Copyright (c) 2000-2023 the FFmpeg developers
-  built with gcc 9 (Ubuntu 9.4.0-1ubuntu1~20.04.3)
-  configuration: --prefix=/usr --enable-gpl --enable-version3 --enable-libdrm --enable-rkmpp --enable-rkrga
-  libavutil      58. 29.100 / 58. 29.100
-  libavcodec     60. 31.102 / 60. 31.102
-  libavformat    60. 16.100 / 60. 16.100
-  libavdevice    60.  3.100 / 60.  3.100
-  libavfilter     9. 12.100 /  9. 12.100
-  libswscale      7.  5.100 /  7.  5.100
-  libswresample   4. 12.100 /  4. 12.100
-  libpostproc    57.  3.100 / 57.  3.100
-frame0 mean=168.038,168.857,166.685
-Input #0, rawvideo, from 'fd:':
-  Duration: N/A, start: 0.000000, bitrate: 184320 kb/s
-  Stream #0:0: Video: rawvideo (BGR[24] / 0x18524742), bgr24, 640x480, 184320 kb/s, 25 tbr, 25 tbn
-Stream mapping:
-  Stream #0:0 -> #0:0 (rawvideo (native) -> h264 (h264_rkmpp))
-Output #0, rtsp, to 'rtsp://10.60.83.159:8554/rk3588_v4l2_keyed':
-  Metadata:
-    encoder         : Lavf60.16.100
-  Stream #0:0: Video: h264 (High), bgr24(progressive), 640x480, q=2-31, 4000 kb/s, 25 fps, 90k tbn
-    Metadata:
-      encoder         : Lavc60.31.102 h264_rkmpp
-frame=    0 fps=0.0 q=25.0 size=       0kB time=00:00:00.00 bitrate=N/A speed=N/A    frame=    9 fps=0.0 q=25.0 size=N/A time=00:00:00.36 bitrate=N/A speed=0.676x    frame=   18 fps= 16 q=22.0 size=N/A time=00:00:00.72 bitrate=N/A speed=0.657x    frame=   26 fps= 15 q=20.0 size=N/A time=00:00:01.00 bitrate=N/A speed=0.595x    frame=   33 fps= 15 q=17.0 size=N/A time=00:00:01.28 bitrate=N/A speed=0.565x    frame=   39 fps= 14 q=17.0 size=N/A time=00:00:01.52 bitrate=N/A speed=0.55x    frame=   46 fps= 14 q=16.0 size=N/A time=00:00:01.80 bitrate=N/A speed=0.537x    frame=   53 fps= 13 q=16.0 size=N/A time=00:00:02.08 bitrate=N/A speed=0.529x    frame=   60 fps= 13 q=16.0 size=N/A time=00:00:02.36 bitrate=N/A speed=0.523x    frame=   67 fps= 13 q=16.0 size=N/A time=00:00:02.64 bitrate=N/A speed=0.518x    frame=   73 fps= 13 q=15.0 size=N/A time=00:00:02.88 bitrate=N/A speed=0.515x    frame=   80 fps= 13 q=16.0 size=N/A time=00:00:03.16 bitrate=N/A speed=0.511x    frame=   86 fps= 13 q=17.0 size=N/A time=00:00:03.40 bitrate=N/A speed=0.509x    frame=   93 fps= 13 q=16.0 size=N/A time=00:00:03.68 bitrate=N/A speed=0.507x    frame=   99 fps= 13 q=17.0 size=N/A time=00:00:03.92 bitrate=N/A speed=0.505x    frame=  105 fps= 13 q=16.0 size=N/A time=00:00:04.20 bitrate=N/A speed=0.503x    frame=  111 fps= 13 q=17.0 size=N/A time=00:00:04.44 bitrate=N/A speed=0.502x    frame=  118 fps= 13 q=17.0 size=N/A time=00:00:04.72 bitrate=N/A speed= 0.5x    frame=  126 fps= 13 q=15.0 size=N/A time=00:00:05.00 bitrate=N/A speed=0.499x    frame=  131 fps= 12 q=16.0 size=N/A time=00:00:05.24 bitrate=N/A speed=0.498x    frame=  138 fps= 12 q=16.0 size=N/A time=00:00:05.52 bitrate=N/A speed=0.497x    frame=  145 fps= 12 q=17.0 size=N/A time=00:00:05.80 bitrate=N/A speed=0.497x    frame=  153 fps= 12 q=16.0 size=N/A time=00:00:06.08 bitrate=N/A speed=0.496x    frame=  158 fps= 12 q=17.0 size=N/A time=00:00:06.32 bitrate=N/A speed=0.495x    frame=  165 fps= 12 q=17.0 size=N/A time=00:00:06.60 bitrate=N/A speed=0.494x    frame=  171 fps= 12 q=17.0 size=N/A time=00:00:06.84 bitrate=N/A speed=0.494x    frame=  177 fps= 12 q=16.0 size=N/A time=00:00:07.08 bitrate=N/A speed=0.493x    frame=  184 fps= 12 q=17.0 size=N/A time=00:00:07.36 bitrate=N/A speed=0.493x    frame=  191 fps= 12 q=17.0 size=N/A time=00:00:07.64 bitrate=N/A speed=0.493x    frame=  197 fps= 12 q=16.0 size=N/A time=00:00:07.88 bitrate=N/A speed=0.492x    frame=  204 fps= 12 q=16.0 size=N/A time=00:00:08.16 bitrate=N/A speed=0.492x    frame=  211 fps= 12 q=16.0 size=N/A time=00:00:08.44 bitrate=N/A speed=0.491x    frame=  217 fps= 12 q=17.0 size=N/A time=00:00:08.68 bitrate=N/A speed=0.491x    frame=  224 fps= 12 q=16.0 size=N/A time=00:00:08.96 bitrate=N/A speed=0.491x    frame=  230 fps= 12 q=16.0 size=N/A time=00:00:09.20 bitrate=N/A speed=0.49x    frame=  237 fps= 12 q=17.0 size=N/A time=00:00:09.48 bitrate=N/A speed=0.49x    frame=  244 fps= 12 q=17.0 size=N/A time=00:00:09.76 bitrate=N/A speed=0.49x    frame=  250 fps= 12 q=17.0 size=N/A time=00:00:09.96 bitrate=N/A speed=0.485x    [out#0/rtsp @ 0x55a569e690] video:4637kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-frame=  250 fps= 12 q=17.0 Lsize=N/A time=00:00:09.96 bitrate=N/A speed=0.485x    

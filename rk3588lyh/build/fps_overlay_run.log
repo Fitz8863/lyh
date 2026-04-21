@@ -1,95 +1,0 @@
-已启动摄像头: 001 (前门大院)
-load lable /home/cat/lyh/rk3588lyh/model/coco_80_labels_list.txt
-Model 0 assigned to NPU core 0
-wwwwwwwwwwwwwwww
-wwwwwwwwwwwwwwww
-当前的NPU核:1
-model input num: 1, output num: 9
-input tensors:
-  index=0, name=images, n_dims=4, dims=[1, 640, 640, 3], n_elems=1228800, size=1228800, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
-output tensors:
-  index=0, name=318, n_dims=4, dims=[1, 64, 80, 80], n_elems=409600, size=409600, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-69, scale=0.076847
-  index=1, name=onnx::ReduceSum_326, n_dims=4, dims=[1, 80, 80, 80], n_elems=512000, size=512000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.001961
-  index=2, name=331, n_dims=4, dims=[1, 1, 80, 80], n_elems=6400, size=6400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.000540
-  index=3, name=338, n_dims=4, dims=[1, 64, 40, 40], n_elems=102400, size=102400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-52, scale=0.063174
-  index=4, name=onnx::ReduceSum_346, n_dims=4, dims=[1, 80, 40, 40], n_elems=128000, size=128000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.002336
-  index=5, name=350, n_dims=4, dims=[1, 1, 40, 40], n_elems=1600, size=1600, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.002341
-  index=6, name=357, n_dims=4, dims=[1, 64, 20, 20], n_elems=25600, size=25600, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-54, scale=0.070337
-  index=7, name=onnx::ReduceSum_365, n_dims=4, dims=[1, 80, 20, 20], n_elems=32000, size=32000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003571
-  index=8, name=369, n_dims=4, dims=[1, 1, 20, 20], n_elems=400, size=400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003624
-model is NHWC input fmt
-model input height=640, width=640, channel=3
-Model 1 assigned to NPU core 1
-wwwwwwwwwwwwwwww
-当前的NPU核:2
-model input num: 1, output num: 9
-input tensors:
-  index=0, name=images, n_dims=4, dims=[1, 640, 640, 3], n_elems=1228800, size=1228800, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
-output tensors:
-  index=0, name=318, n_dims=4, dims=[1, 64, 80, 80], n_elems=409600, size=409600, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-69, scale=0.076847
-  index=1, name=onnx::ReduceSum_326, n_dims=4, dims=[1, 80, 80, 80], n_elems=512000, size=512000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.001961
-  index=2, name=331, n_dims=4, dims=[1, 1, 80, 80], n_elems=6400, size=6400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.000540
-  index=3, name=338, n_dims=4, dims=[1, 64, 40, 40], n_elems=102400, size=102400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-52, scale=0.063174
-  index=4, name=onnx::ReduceSum_346, n_dims=4, dims=[1, 80, 40, 40], n_elems=128000, size=128000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.002336
-  index=5, name=350, n_dims=4, dims=[1, 1, 40, 40], n_elems=1600, size=1600, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.002341
-  index=6, name=357, n_dims=4, dims=[1, 64, 20, 20], n_elems=25600, size=25600, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-54, scale=0.070337
-  index=7, name=onnx::ReduceSum_365, n_dims=4, dims=[1, 80, 20, 20], n_elems=32000, size=32000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003571
-  index=8, name=369, n_dims=4, dims=[1, 1, 20, 20], n_elems=400, size=400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003624
-model is NHWC input fmt
-model input height=640, width=640, channel=3
-Model 2 assigned to NPU core 2
-wwwwwwwwwwwwwwww
-当前的NPU核:4
-model input num: 1, output num: 9
-input tensors:
-  index=0, name=images, n_dims=4, dims=[1, 640, 640, 3], n_elems=1228800, size=1228800, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
-output tensors:
-  index=0, name=318, n_dims=4, dims=[1, 64, 80, 80], n_elems=409600, size=409600, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-69, scale=0.076847
-  index=1, name=onnx::ReduceSum_326, n_dims=4, dims=[1, 80, 80, 80], n_elems=512000, size=512000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.001961
-  index=2, name=331, n_dims=4, dims=[1, 1, 80, 80], n_elems=6400, size=6400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.000540
-  index=3, name=338, n_dims=4, dims=[1, 64, 40, 40], n_elems=102400, size=102400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-52, scale=0.063174
-  index=4, name=onnx::ReduceSum_346, n_dims=4, dims=[1, 80, 40, 40], n_elems=128000, size=128000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.002336
-  index=5, name=350, n_dims=4, dims=[1, 1, 40, 40], n_elems=1600, size=1600, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.002341
-  index=6, name=357, n_dims=4, dims=[1, 64, 20, 20], n_elems=25600, size=25600, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-54, scale=0.070337
-  index=7, name=onnx::ReduceSum_365, n_dims=4, dims=[1, 80, 20, 20], n_elems=32000, size=32000, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003571
-  index=8, name=369, n_dims=4, dims=[1, 1, 20, 20], n_elems=400, size=400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003624
-model is NHWC input fmt
-model input height=640, width=640, channel=3
-Thread pool initialized with 3 threads
-YOLOv8 模型加载成功 (/home/cat/lyh/rk3588lyh/model/yolov8s.rknn, 3 线程)
-所有服务已启动，按 Ctrl+C 退出...
-正在打开摄像头 (MJPEG 1920x1080@30fps)...
-MQTT 连接成功，心跳主题: rk3588lyh/info
-检测上报主题: rk3588lyh/001/report
-[ WARN:0@0.636] global cap_gstreamer.cpp:1777 open OpenCV | GStreamer warning: Cannot query video position: status=1, value=6, duration=-1
-RTSP 推流已启动 → rtsp://10.60.83.159:8554/rk3588lyh
-YOLOv8 推理已启用（异步模式）
-ffmpeg version 03498fe Copyright (c) 2000-2023 the FFmpeg developers
-  built with gcc 9 (Ubuntu 9.4.0-1ubuntu1~20.04.3)
-  configuration: --prefix=/usr --enable-gpl --enable-version3 --enable-libdrm --enable-rkmpp --enable-rkrga
-  libavutil      58. 29.100 / 58. 29.100
-  libavcodec     60. 31.102 / 60. 31.102
-  libavformat    60. 16.100 / 60. 16.100
-  libavdevice    60.  3.100 / 60.  3.100
-  libavfilter     9. 12.100 /  9. 12.100
-  libswscale      7.  5.100 /  7.  5.100
-  libswresample   4. 12.100 /  4. 12.100
-  libpostproc    57.  3.100 / 57.  3.100
-Input #0, rawvideo, from 'fd:':
-  Duration: N/A, start: 0.000000, bitrate: 1492992 kb/s
-  Stream #0:0: Video: rawvideo (BGR[24] / 0x18524742), bgr24, 1920x1080, 1492992 kb/s, 30 tbr, 30 tbn
-Stream mapping:
-  Stream #0:0 -> #0:0 (rawvideo (native) -> h264 (h264_rkmpp))
-Output #0, rtsp, to 'rtsp://10.60.83.159:8554/rk3588lyh':
-  Metadata:
-    encoder         : Lavf60.16.100
-  Stream #0:0: Video: h264 (High), bgr24(progressive), 1920x1080, q=2-31, 4000 kb/s, 30 fps, 90k tbn
-    Metadata:
-      encoder         : Lavc60.31.102 h264_rkmpp
-frame=    1 fps=0.0 q=22.0 size=N/A time=00:00:00.00 bitrate=N/A speed=N/A    frame=   12 fps=0.0 q=36.0 size=N/A time=00:00:00.36 bitrate=N/A speed=0.698x    frame=   26 fps= 24 q=32.0 size=N/A time=00:00:00.83 bitrate=N/A speed=0.783x    frame=   39 fps= 25 q=30.0 size=N/A time=00:00:01.26 bitrate=N/A speed=0.807x    frame=   53 fps= 26 q=27.0 size=N/A time=00:00:01.73 bitrate=N/A speed=0.835x    frame=   66 fps= 25 q=27.0 size=N/A time=00:00:02.16 bitrate=N/A speed=0.831x    frame=   80 fps= 25 q=27.0 size=N/A time=00:00:02.63 bitrate=N/A speed=0.838x    frame=   94 fps= 26 q=27.0 size=N/A time=00:00:03.10 bitrate=N/A speed=0.841x    frame=  108 fps= 26 q=27.0 size=N/A time=00:00:03.56 bitrate=N/A speed=0.845x    frame=  121 fps= 25 q=27.0 size=N/A time=00:00:04.03 bitrate=N/A speed=0.847x    frame=  135 fps= 26 q=27.0 size=N/A time=00:00:04.46 bitrate=N/A speed=0.848x    frame=  148 fps= 26 q=27.0 size=N/A time=00:00:04.93 bitrate=N/A speed=0.855x    frame=  161 fps= 26 q=26.0 size=N/A time=00:00:05.36 bitrate=N/A speed=0.851x    frame=  175 fps= 26 q=27.0 size=N/A time=00:00:05.80 bitrate=N/A speed=0.852x    frame=  188 fps= 26 q=27.0 size=N/A time=00:00:06.23 bitrate=N/A speed=0.853x    rga_api version 1.10.1_[0]
-正在停止服务...
-[out#0/rtsp @ 0x5582530690] video:3002kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-frame=  189 fps= 25 q=27.0 Lsize=N/A time=00:00:06.26 bitrate=N/A speed=0.84x    
-摄像头推流线程已退出
-MQTT 客户端已断开
-所有服务已停止

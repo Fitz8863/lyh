@@ -103,42 +103,36 @@ void CaptureThread::Run()
         return;
     }
 
-    // 使用 ffmpeg 管道推流（和 before.cc 相同的方式）
-    std::string cmd =
-        "ffmpeg -y "
-        "-f rawvideo -pix_fmt bgr24 -s " +
-        std::to_string(width_) + "x" + std::to_string(height_) +
-        " -r " + std::to_string(fps_) +
-        " -i - "
-        "-c:v h264_rkmpp "
-        "-b:v 4M -maxrate 4M -bufsize 8M "
-        "-g " + std::to_string(fps_) +
-        " -keyint_min " + std::to_string(fps_) +
-        " -bf 0 "
-        "-fflags nobuffer -flags low_delay "
-        "-rtsp_transport udp "
-        "-f rtsp " +
-        rtsp_url_;
+     std::string push_pipeline =
+        "appsrc ! "
+        "videoconvert ! "
+        "video/x-raw,format=NV12,width=" + std::to_string(width_) +
+        ",height=" + std::to_string(height_) +
+        ",framerate=" + std::to_string(fps_) + "/1 ! "
+        "mpph264enc bps=8000000 ! "
+        "h264parse ! "
+        "rtspclientsink location=" + rtsp_url_;
 
-    FILE *ffmpeg = popen(cmd.c_str(), "w");
-    if (!ffmpeg)
-    {
-        std::cerr << "错误：无法打开 ffmpeg 管道！" << std::endl;
+    cv::VideoWriter writer(push_pipeline, cv::CAP_GSTREAMER, 0, fps_, cv::Size(width_, height_), true);
+    if (!writer.isOpened()) {
+        std::cerr << "错误：无法打开推流 pipeline！" << std::endl;
         cap.release();
         running_ = false;
         status_.running.store(false);
         return;
     }
 
-    std::cout << "RTSP 推流已启动 → " << rtsp_url_ << std::endl;
+    std::cout << "RTSP 推流已启动 → " << rtsp_url_ << " (8Mbps)" << std::endl;
 
     auto fps_update_time = std::chrono::high_resolution_clock::now();
     int frame_count = 0;
     float current_fps = 0.0f;
     bool detector_ready = (detector_ != nullptr);
     const bool trigger_enabled = detector_ready && trigger_config_.enabled;
-    auto trigger_window_start = std::chrono::steady_clock::now();
-    int trigger_match_frames = 0;
+    bool trigger_window_active = false;
+    auto trigger_window_start = std::chrono::steady_clock::time_point{};
+    int trigger_window_match_frames = 0;
+    int trigger_stage_match_frames = 0;
     int trigger_success_count = 0;
     object_detect_result_list last_matching_results{};
 
@@ -154,7 +148,7 @@ void CaptureThread::Run()
     else
     {
         DrawFpsOverlay(frame, current_fps);
-        fwrite(frame.data, 1, width_ * height_ * 3, ffmpeg);
+        writer << frame;
     }
 
     while (running_ && status_.running.load() && g_running)
@@ -189,66 +183,106 @@ void CaptureThread::Run()
             {
                 if (trigger_enabled)
                 {
+                    const bool current_frame_has_target = ContainsTargetClass(results, trigger_config_.target_class_id);
                     const auto trigger_now = std::chrono::steady_clock::now();
-                    const auto trigger_elapsed = std::chrono::duration_cast<std::chrono::seconds>(trigger_now - trigger_window_start).count();
-                    if (trigger_elapsed >= trigger_config_.window_seconds)
+
+                    if (trigger_window_active)
                     {
-                        if (trigger_match_frames >= trigger_config_.frame_threshold)
+                        const auto trigger_elapsed = std::chrono::duration_cast<std::chrono::seconds>(trigger_now - trigger_window_start).count();
+                        if (trigger_elapsed >= trigger_config_.window_seconds)
                         {
-                            trigger_success_count++;
-                            std::cout << "[Trigger] window=" << trigger_config_.window_seconds
-                                      << "s target_class_id=" << trigger_config_.target_class_id
-                                      << " match_frames=" << trigger_match_frames
-                                      << " >= threshold=" << trigger_config_.frame_threshold
-                                      << " => success_count=" << trigger_success_count
-                                      << "/" << trigger_config_.trigger_count << std::endl;
-                            if (trigger_success_count >= trigger_config_.trigger_count)
-                            {
-                                status_.QueueDetectionReport(last_matching_results, trigger_match_frames, trigger_success_count);
-                                std::cout << "[Trigger] MQTT report queued: success_count reached "
-                                          << trigger_config_.trigger_count << std::endl;
-                                trigger_success_count = 0;
-                            }
+                            std::cout << "[Trigger] window expired: target_class_id="
+                                      << trigger_config_.target_class_id
+                                      << " elapsed=" << trigger_elapsed << "s"
+                                      << " total_match_frames=" << trigger_window_match_frames
+                                      << " stage_match_frames=" << trigger_stage_match_frames
+                                      << " success_count=" << trigger_success_count
+                                      << "/" << trigger_config_.trigger_count
+                                      << " => reset" << std::endl;
+
+                            trigger_window_active = false;
+                            trigger_window_match_frames = 0;
+                            trigger_stage_match_frames = 0;
+                            trigger_success_count = 0;
                         }
-                        else
-                        {
-                            std::cout << "[Trigger] window=" << trigger_config_.window_seconds
-                                      << "s target_class_id=" << trigger_config_.target_class_id
-                                      << " match_frames=" << trigger_match_frames
-                                      << " < threshold=" << trigger_config_.frame_threshold
-                                      << " => success_count stays " << trigger_success_count
-                                      << "/" << trigger_config_.trigger_count << std::endl;
-                        }
-                        trigger_window_start = trigger_now;
-                        trigger_match_frames = 0;
                     }
 
-                    if (ContainsTargetClass(results, trigger_config_.target_class_id))
+                    if (!trigger_window_active && current_frame_has_target)
                     {
-                        trigger_match_frames++;
+                        trigger_window_active = true;
+                        trigger_window_start = trigger_now;
+                        trigger_window_match_frames = 1;
+                        trigger_stage_match_frames = 1;
+                        trigger_success_count = 0;
                         last_matching_results = results;
+                        std::cout << "[Trigger] window started: target_class_id="
+                                  << trigger_config_.target_class_id
+                                  << " window=" << trigger_config_.window_seconds << "s"
+                                  << " elapsed=0s"
+                                  << " total_match_frames=" << trigger_window_match_frames
+                                  << " stage_match_frames=" << trigger_stage_match_frames
+                                  << " success_count=" << trigger_success_count
+                                  << "/" << trigger_config_.trigger_count << std::endl;
+                    }
+                    else if (trigger_window_active && current_frame_has_target)
+                    {
+                        trigger_window_match_frames++;
+                        trigger_stage_match_frames++;
+                        last_matching_results = results;
+                    }
+
+                    if (trigger_window_active && trigger_stage_match_frames >= trigger_config_.frame_threshold)
+                    {
+                        const auto trigger_elapsed = std::chrono::duration_cast<std::chrono::seconds>(trigger_now - trigger_window_start).count();
+                        trigger_success_count++;
+                        std::cout << "[Trigger] target_class_id=" << trigger_config_.target_class_id
+                                  << " elapsed=" << trigger_elapsed << "s"
+                                  << " total_match_frames=" << trigger_window_match_frames
+                                  << " stage_match_frames=" << trigger_stage_match_frames
+                                  << " >= threshold=" << trigger_config_.frame_threshold
+                                  << " => success_count=" << trigger_success_count
+                                  << "/" << trigger_config_.trigger_count << std::endl;
+                        trigger_stage_match_frames = 0;
+
+                        if (trigger_success_count >= trigger_config_.trigger_count)
+                        {
+                            status_.QueueDetectionReport(last_matching_results, trigger_window_match_frames, trigger_success_count);
+                            std::cout << "[Trigger] MQTT report queued: target_class_id="
+                                      << trigger_config_.target_class_id
+                                      << " elapsed=" << trigger_elapsed << "s"
+                                      << " total_match_frames=" << trigger_window_match_frames
+                                      << " stage_match_frames=" << trigger_stage_match_frames
+                                      << " success_count=" << trigger_success_count
+                                      << "/" << trigger_config_.trigger_count
+                                      << " => reached trigger_count=" << trigger_config_.trigger_count
+                                      << ", closing current window" << std::endl;
+                            trigger_window_active = false;
+                            trigger_window_match_frames = 0;
+                            trigger_stage_match_frames = 0;
+                            trigger_success_count = 0;
+                        }
                     }
                 }
 
                 draw_results(annotated_frame, results);
                 DrawFpsOverlay(annotated_frame, current_fps);
                 status_.SetDetectResults(results);
-                fwrite(annotated_frame.data, 1, width_ * height_ * 3, ffmpeg);
+                writer << annotated_frame;
             }
             else
             {
                 DrawFpsOverlay(frame, current_fps);
-                fwrite(frame.data, 1, width_ * height_ * 3, ffmpeg);
+                writer << frame;
             }
         }
         else
         {
             DrawFpsOverlay(frame, current_fps);
-            fwrite(frame.data, 1, width_ * height_ * 3, ffmpeg);
+            writer << frame;
         }
     }
 
     cap.release();
-    pclose(ffmpeg);
+    writer.release();
     std::cout << "摄像头推流线程已退出" << std::endl;
 }

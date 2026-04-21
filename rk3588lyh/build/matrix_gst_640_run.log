@@ -1,5 +1,0 @@
-[ WARN:0@0.034] global cap_gstreamer.cpp:2839 handleMessage OpenCV | GStreamer warning: Embedded video playback halted; module v4l2src0 reported: Device '/dev/video0' is busy
-[ WARN:0@0.034] global cap_gstreamer.cpp:1698 open OpenCV | GStreamer warning: unable to start pipeline
-[ WARN:0@0.034] global cap_gstreamer.cpp:1173 isPipelinePlaying OpenCV | GStreamer warning: GStreamer: pipeline have not been created
-[ WARN:0@0.034] global cap.cpp:204 open VIDEOIO(GSTREAMER): backend is generally available but can't be used to capture by name
-capture open failed
