@@ -8,32 +8,8 @@ settings_bp = Blueprint('settings', __name__, url_prefix='/settings')
 
 @settings_bp.before_request
 def before_request():
-    if request.endpoint == 'settings.intercom_webhook_stop':
-        return
-    
     if not current_user.is_authenticated:
         return login_manager.unauthorized()
-
-@settings_bp.route('/api/intercom/webhook/stop', methods=['POST'])
-def intercom_webhook_stop():
-    device_id = None
-    if request.is_json:
-        device_id = request.json.get('device_id')
-    else:
-        device_id = request.form.get('device_id')
-    
-    if not device_id:
-        return jsonify({'error': 'Missing device_id'}), 400
-        
-    try:
-        from blueprints.mqtt_manager import mqtt_manager
-        if mqtt_manager and mqtt_manager.connected:
-            success, message = mqtt_manager.send_intercom_command(device_id, 'stop')
-            if success:
-                return jsonify({'message': f'Stopped intercom for {device_id}'}), 200
-        return jsonify({'error': 'MQTT not connected'}), 500
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @settings_bp.route('/')
 def index():
@@ -126,20 +102,6 @@ def mqtt_disconnect():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@settings_bp.route('/api/intercom/config', methods=['GET'])
-def get_intercom_config():
-    try:
-        config = MqttConfig.query.filter_by(is_active=True).first()
-        if config:
-            return jsonify({
-                'mediamtx_ip': config.broker,
-                'mediamtx_whip_port': config.mediamtx_whip_port,
-                'mediamtx_rtsp_port': config.mediamtx_rtsp_port
-            }), 200
-        return jsonify({'error': '未找到有效配置'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 
 @settings_bp.route('/api/mqtt/configs', methods=['GET'])
 def get_mqtt_configs():
@@ -166,52 +128,6 @@ def get_mqtt_configs():
             'is_active': c.is_active
         } for c in unique_configs]
     }), 200
-
-@settings_bp.route('/api/intercom/start', methods=['POST'])
-def intercom_start():
-    data = request.json
-    device_id = data.get('device_id')
-    
-    if not device_id:
-        return jsonify({'error': '缺少设备ID'}), 400
-        
-    try:
-        from blueprints.mqtt_manager import mqtt_manager
-        if not mqtt_manager or not mqtt_manager.connected:
-            return jsonify({'error': 'MQTT未连接'}), 400
-            
-        config = MqttConfig.query.filter_by(is_active=True).first()
-        if not config or not config.broker:
-            return jsonify({'error': '请先在设置中配置服务器地址'}), 400
-            
-        rtsp_url = f"rtsp://{config.broker}:{config.mediamtx_rtsp_port}/{device_id}"
-        success, message = mqtt_manager.send_intercom_command(device_id, 'start', rtsp_url)
-        
-        if success:
-            return jsonify({'message': '对讲指令已发送'}), 200
-        return jsonify({'error': message}), 500
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@settings_bp.route('/api/intercom/stop', methods=['POST'])
-def intercom_stop():
-    data = request.json
-    device_id = data.get('device_id')
-    
-    if not device_id:
-        return jsonify({'error': '缺少设备ID'}), 400
-        
-    try:
-        from blueprints.mqtt_manager import mqtt_manager
-        if not mqtt_manager or not mqtt_manager.connected:
-            return jsonify({'error': 'MQTT未连接'}), 400
-            
-        success, message = mqtt_manager.send_intercom_command(device_id, 'stop')
-        if success:
-            return jsonify({'message': '对讲停止指令已发送'}), 200
-        return jsonify({'error': message}), 500
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @settings_bp.route('/api/camera/config', methods=['POST'])
 def send_camera_config():

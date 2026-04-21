@@ -40,33 +40,38 @@ class MQTTManager:
             self.connected = True
             print("MQTT连接成功")
             # 订阅设备信息主题
-            client.subscribe("RK3588/info")
+            client.subscribe("rk3588lyh/info")
         else:
             self.connected = False
             print(f"MQTT连接失败, 返回码: {rc}")
 
     def _on_message(self, client, userdata, msg):
-        if msg.topic == "RK3588/info":
+        if msg.topic == "rk3588lyh/info":
             try:
                 payload = json.loads(msg.payload.decode('utf-8'))
-                device_id = payload.get('device', 'unknown')
+                device_id = payload.get('device_id', 'unknown')
+                camera_info = payload.get('camera', {})
                 
-                # 移除不需要的字段
-                if 'timestamp_ns' in payload:
-                    del payload['timestamp_ns']
-                
-                # 保存到设备字典（支持多设备）
-                self.devices[device_id] = {
-                    'info': payload,
+                normalized_data = {
+                    'device_id': device_id,
+                    'camera': camera_info,
                     'last_seen': time.time()
                 }
                 
+                self.devices[device_id] = {
+                    'info': normalized_data,
+                    'last_seen': time.time(),
+                    'raw_payload': payload
+                }
+                
                 # 兼容旧逻辑
-                self.latest_jetson_info = payload
+                self.latest_jetson_info = normalized_data
                 self.last_info_time = time.time()
-                self.connected = True # 收到消息说明连接肯定正常
+                self.connected = True  # 收到消息说明连接肯定正常
+                
+                print(f"收到设备心跳: {device_id}, 摄像头: {camera_info.get('id', 'unknown')} @ {camera_info.get('location', 'unknown')}")
             except Exception as e:
-                print(f"解析 RK3588/info 消息失败: {e}")
+                print(f"解析 rk3588lyh/info 消息失败: {e}")
             
     def _on_disconnect(self, client, userdata, rc):
         self.connected = False
@@ -134,30 +139,6 @@ class MQTTManager:
                 return False, 'step 必须为整数'
         
         return self.publish("command", payload)
-        
-    def send_intercom_command(self, device_id, action, url=None):
-        payload = {
-            'type': f'intercom_{action}',
-            'device': device_id,
-            'timestamp': int(time.time())
-        }
-        if url:
-            payload['url'] = url
-            
-        return self.publish_raw("RK3588/call/command", payload)
-    
-    def publish_raw(self, topic, payload):
-        if not self.connected or not self.client:
-            return False, "MQTT未连接"
-        
-        try:
-            result = self.client.publish(topic, json.dumps(payload),qos=1)
-            if result.rc == mqtt.MQTT_ERR_SUCCESS:
-                return True, "消息发送成功"
-            else:
-                return False, "消息发送失败"
-        except Exception as e:
-            return False, str(e)
 
     def disconnect(self):
         """断开连接"""
@@ -170,11 +151,13 @@ class MQTTManager:
         if not self.connected or not self.latest_jetson_info:
             return []
         
-        # 检查是否超时 (10秒未收到心跳包视为断开)
         if (time.time() - self.last_info_time) > 10:
             return []
-            
-        return self.latest_jetson_info.get('cameras', [])
+        
+        camera = self.latest_jetson_info.get('camera')
+        if camera:
+            return [camera]
+        return []
     
     def get_active_data(self):
         """获取所有在线设备的数据统计"""
@@ -183,18 +166,18 @@ class MQTTManager:
         total_cameras = 0
         all_cameras = []
         
-        # 清理超时的设备
         expired_devices = []
         for device_id, data in list(self.devices.items()):
             if now - data['last_seen'] < 10:
                 active_devices.append(device_id)
-                cameras = data['info'].get('cameras', [])
-                total_cameras += len(cameras)
-                all_cameras.extend(cameras)
+                camera = data['info'].get('camera')
+                if camera:
+                    total_cameras += 1
+                    camera['device_id'] = device_id
+                    all_cameras.append(camera)
             else:
                 expired_devices.append(device_id)
         
-        # 删除超时的设备记录
         for dev_id in expired_devices:
             if now - self.devices[dev_id]['last_seen'] > 60:
                 del self.devices[dev_id]
