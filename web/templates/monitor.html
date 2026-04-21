@@ -1,0 +1,792 @@
+{% extends "base.html" %}
+
+{% block title %}实时监控 - VisionGuard AI 跌倒检测系统{% endblock %}
+
+{% block extra_css %}
+<style>
+    .monitor-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    .monitor-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .monitor-card:hover {
+        transform: translateY(-5px) scale(1.01);
+        box-shadow: 0 15px 40px rgba(244, 114, 182, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        background: var(--bg-card-hover);
+    }
+    .monitor-header {
+        background: linear-gradient(135deg, rgba(244, 114, 182, 0.5) 0%, rgba(34, 211, 238, 0.5) 100%);
+        backdrop-filter: blur(5px);
+        color: white;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .monitor-body {
+        padding: 0;
+        background: rgba(0, 0, 0, 0.5);
+        min-height: 350px;
+        position: relative;
+    }
+    .monitor-body iframe {
+        width: 100%;
+        height: 350px;
+        border: none;
+    }
+    .video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 15, 25, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: all 0.5s ease;
+    }
+    .video-overlay i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: var(--primary-light);
+    }
+    .video-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .btn-refresh-stream {
+        background: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-light);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+    }
+    .btn-refresh-stream:hover {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 0 15px var(--glow-color);
+    }
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .status-normal {
+        background: rgba(16, 185, 129, 0.2);
+        color: #34d399;
+    }
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #34d399;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    .monitor-stats {
+        display: flex;
+        gap: 20px;
+        padding: 15px 20px;
+        background: var(--bg-dark);
+        border-top: 1px solid var(--border-color);
+    }
+    .monitor-stats span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--text-secondary);
+        grid-column: 1 / -1;
+        background: var(--bg-card);
+        border-radius: 15px;
+        border: 1px solid var(--border-color);
+    }
+    .empty-state i {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, var(--primary-light), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        opacity: 0.5;
+    }
+    .empty-state h5 {
+        color: var(--text-primary);
+    }
+    {% if not current_user.is_authenticated %}
+    .alert-info {
+        background: rgba(244, 114, 182, 0.15);
+        border: none;
+        border-radius: 10px;
+        padding: 20px;
+        color: var(--primary-light);
+    }
+    .alert-info a {
+        color: var(--accent-color);
+        font-weight: 600;
+    }
+    {% endif %}
+    @media (max-width: 768px) {
+        .monitor-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    /* PTZ 控制面板（方向键+居中一体化） */
+    .ptz-controls {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 60px);
+        gap: 10px;
+        padding: 12px;
+        margin: 8px 0;
+        justify-items: center;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+    }
+    .ptz-btn {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.08);
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .ptz-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    .ptz-btn[data-action="center"] {
+        font-size: 12px;
+        padding: 6px 8px;
+        white-space: normal;
+        text-align: center;
+    }
+    .ptz-status {
+        text-align: center;
+        padding: 6px 0 8px 0;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    
+    .intercom-bar {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        display: none; /* 默认隐藏，连接成功后显示 */
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .intercom-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary-light);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .intercom-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .intercom-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-left: auto;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .status-dot-intercom {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #94a3b8;
+    }
+    .status-active {
+        background: #ef4444;
+        animation: pulse 1s infinite;
+    }
+    .status-connecting {
+        background: #f59e0b;
+        animation: pulse 1s infinite;
+    }
+    #intercomDeviceSelect {
+        background: var(--bg-dark);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 6px 12px;
+        width: 250px;
+    }
+    .btn-intercom {
+        padding: 6px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+    }
+    .btn-intercom-start {
+        background: #10b981;
+        border: none;
+        color: white;
+    }
+    .btn-intercom-start:hover {
+        background: #059669;
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+    .btn-intercom-stop {
+        background: #ef4444;
+        border: none;
+        color: white;
+    }
+    .btn-intercom-stop:hover {
+        background: #dc2626;
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+    .btn-intercom:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    @media (max-width: 768px) {
+        .intercom-bar {
+            padding: 16px;
+            gap: 12px;
+            align-items: stretch;
+        }
+        .intercom-title,
+        #intercomDeviceSelect,
+        .intercom-actions,
+        .intercom-status {
+            width: 100%;
+        }
+        .intercom-title {
+            justify-content: center;
+        }
+        #intercomDeviceSelect {
+            width: 100%;
+            min-height: 42px;
+        }
+        .intercom-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .btn-intercom {
+            width: 100%;
+        }
+        .intercom-status {
+            margin-left: 0;
+            justify-content: center;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+    }
+    @media (max-width: 480px) {
+        .intercom-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if not current_user.is_authenticated %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    请 <a href="{{ url_for('auth.login') }}">登录</a> 后查看实时监控画面
+</div>
+{% else %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">
+        <i class="fas fa-video me-2" style="color: var(--primary-light);"></i>实时视频监控
+    </h4>
+</div>
+
+<div class="intercom-bar">
+    <div class="intercom-title">
+        <i class="fas fa-microphone"></i><span>远程对讲</span>
+    </div>
+    <select id="intercomDeviceSelect">
+        <option value="">请选择对讲设备...</option>
+    </select>
+    <div class="intercom-actions">
+        <button id="btnStartIntercom" class="btn-intercom btn-intercom-start" onclick="startIntercom()">
+            <i class="fas fa-phone-alt me-1"></i>开始通话
+        </button>
+        <button id="btnStopIntercom" class="btn-intercom btn-intercom-stop" onclick="stopIntercom()" disabled>
+            <i class="fas fa-phone-slash me-1"></i>结束通话
+        </button>
+    </div>
+    <div class="intercom-status">
+        <div id="intercomStatusDot" class="status-dot-intercom"></div>
+        <span id="intercomStatusText">状态：等待中</span>
+    </div>
+</div>
+
+<div class="monitor-grid" id="monitorGrid">
+    <div id="emptyState" class="empty-state">
+        <i class="fas fa-server"></i>
+        <h5 id="emptyStateTitle">请先连接服务器</h5>
+        <p id="emptyStateDesc">前往“系统设置”连接远程服务器以获取实时监控</p>
+    </div>
+</div>
+{% endif %}
+
+{% block extra_js %}
+<script>
+    let activeCameras = new Map(); // Store camera info by ID
+    let pollInterval = null;
+    let intercomPollInterval = null;
+    let intercomClient = null;
+    
+    class IntercomClient {
+        constructor() {
+            this.pc = null;
+            this.stream = null;
+            this.deviceId = null;
+            this.config = null;
+        }
+        
+        async start(deviceId) {
+            this.deviceId = deviceId;
+            try {
+                // 1. 获取配置
+                const configResp = await fetch('/settings/api/intercom/config');
+                this.config = await configResp.json();
+                if (this.config.error) throw new Error(this.config.error);
+                
+                // 2. 获取麦克风权限
+                this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // 3. 创建 PeerConnection
+                this.pc = new RTCPeerConnection();
+                this.stream.getTracks().forEach(track => this.pc.addTrack(track, this.stream));
+                
+                // 4. 创建 Offer
+                const offer = await this.pc.createOffer();
+                await this.pc.setLocalDescription(offer);
+                
+                // 5. 等待 ICE 收集完成 (WHIP 简化版通常需要完整的 SDP)
+                await new Promise((resolve) => {
+                    if (this.pc.iceGatheringState === 'complete') resolve();
+                    else {
+                        const checkState = () => {
+                            if (this.pc.iceGatheringState === 'complete') {
+                                this.pc.removeEventListener('icegatheringstatechange', checkState);
+                                resolve();
+                            }
+                        };
+                        this.pc.addEventListener('icegatheringstatechange', checkState);
+                    }
+                });
+                
+                // 6. 发送 WHIP 请求到 MediaMTX
+                const whipUrl = `http://${this.config.mediamtx_ip}:${this.config.mediamtx_whip_port}/${deviceId}/whip`;
+                const response = await fetch(whipUrl, {
+                    method: 'POST',
+                    body: this.pc.localDescription.sdp,
+                    headers: { 'Content-Type': 'application/sdp' }
+                });
+                
+                if (!response.ok) throw new Error('MediaMTX 拒绝了推流请求');
+                
+                const answerSdp = await response.text();
+                await this.pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
+                
+                // 7. 等待连接成功
+                await new Promise((resolve, reject) => {
+                    const checkStatus = () => {
+                        if (this.pc.connectionState === 'connected') {
+                            this.pc.removeEventListener('connectionstatechange', checkStatus);
+                            resolve();
+                        } else if (this.pc.connectionState === 'failed') {
+                            reject(new Error('WebRTC 连接失败'));
+                        }
+                    };
+                    this.pc.addEventListener('connectionstatechange', checkStatus);
+                    setTimeout(() => reject(new Error('连接超时')), 10000);
+                });
+                
+                // 8. 通知后端下发 MQTT 指令
+                const startResp = await fetch('/settings/api/intercom/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ device_id: deviceId })
+                });
+                const startData = await startResp.json();
+                if (startData.error) throw new Error(startData.error);
+                
+                return true;
+            } catch (err) {
+                this.stop();
+                throw err;
+            }
+        }
+        
+        async stop() {
+            if (this.deviceId) {
+                fetch('/settings/api/intercom/stop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ device_id: this.deviceId })
+                }).catch(e => console.error('停止对讲指令下发失败', e));
+            }
+            
+            if (this.pc) {
+                this.pc.close();
+                this.pc = null;
+            }
+            if (this.stream) {
+                this.stream.getTracks().forEach(track => track.stop());
+                this.stream = null;
+            }
+            this.deviceId = null;
+        }
+    }
+
+    function updateIntercomStatus(status, message) {
+        const dot = document.getElementById('intercomStatusDot');
+        const text = document.getElementById('intercomStatusText');
+        
+        dot.className = 'status-dot-intercom';
+        if (status === 'active') dot.classList.add('status-active');
+        if (status === 'connecting') dot.classList.add('status-connecting');
+        
+        text.innerText = `状态：${message}`;
+    }
+
+    async function startIntercom() {
+        const deviceSelect = document.getElementById('intercomDeviceSelect');
+        const deviceId = deviceSelect.value;
+        
+        if (!deviceId) {
+            alert('请先选择一个对讲设备');
+            return;
+        }
+        
+        const startBtn = document.getElementById('btnStartIntercom');
+        const stopBtn = document.getElementById('btnStopIntercom');
+        
+        startBtn.disabled = true;
+        deviceSelect.disabled = true;
+        updateIntercomStatus('connecting', '正在建立通话...');
+        
+        if (!intercomClient) intercomClient = new IntercomClient();
+        
+        try {
+            await intercomClient.start(deviceId);
+            updateIntercomStatus('active', '正在通话中...');
+            stopBtn.disabled = false;
+        } catch (err) {
+            console.error('对讲失败:', err);
+            alert(`对讲失败: ${err.message}`);
+            updateIntercomStatus('idle', '等待中');
+            startBtn.disabled = false;
+            deviceSelect.disabled = false;
+        }
+    }
+
+    async function stopIntercom() {
+        const startBtn = document.getElementById('btnStartIntercom');
+        const stopBtn = document.getElementById('btnStopIntercom');
+        const deviceSelect = document.getElementById('intercomDeviceSelect');
+        
+        stopBtn.disabled = true;
+        if (intercomClient) {
+            await intercomClient.stop();
+        }
+        
+        updateIntercomStatus('idle', '等待中');
+        startBtn.disabled = false;
+        deviceSelect.disabled = false;
+    }
+
+    function updateIntercomDevices() {
+        fetch('/settings/api/mqtt/realtime-stats')
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('intercomDeviceSelect');
+                const currentVal = select.value;
+                const devices = data.devices || [];
+                
+                // 如果正在对讲，检查选中的设备是否仍然在线
+                if (intercomClient && intercomClient.deviceId) {
+                    if (!devices.includes(intercomClient.deviceId)) {
+                        console.warn('对讲设备已离线，自动停止通话');
+                        stopIntercom();
+                        alert('对讲设备已离线，通话已自动结束');
+                        return;
+                    }
+                }
+                
+                // 仅在未通话且未在连接中时更新下拉列表
+                if (document.getElementById('btnStartIntercom').disabled) return;
+                
+                select.innerHTML = '<option value="">请选择对讲设备...</option>';
+                devices.forEach(dev => {
+                    const opt = document.createElement('option');
+                    opt.value = dev;
+                    opt.innerText = dev;
+                    if (dev === currentVal) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!document.getElementById('monitorGrid')) return;
+        
+        syncCameras();
+        pollInterval = setInterval(syncCameras, 10000); // 10秒后台同步一次
+        
+        updateIntercomDevices();
+        intercomPollInterval = setInterval(updateIntercomDevices, 5000);
+    });
+
+    function syncCameras() {
+        fetch('/api/cameras')
+            .then(response => response.json())
+            .then(data => {
+                const cameras = data.cameras || [];
+                const mqttConnected = data.mqtt_connected;
+                const emptyState = document.getElementById('emptyState');
+                const emptyStateTitle = document.getElementById('emptyStateTitle');
+                const emptyStateDesc = document.getElementById('emptyStateDesc');
+                const monitorGrid = document.getElementById('monitorGrid');
+                const intercomBar = document.querySelector('.intercom-bar');
+                
+                // 根据连接状态显示/隐藏对讲控制栏
+                if (intercomBar) {
+                    intercomBar.style.display = mqttConnected ? 'flex' : 'none';
+                }
+                
+                if (!mqttConnected) {
+                    // MQTT未连接状态
+                    activeCameras.forEach(card => card.remove());
+                    activeCameras.clear();
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('i').className = 'fas fa-server';
+                    emptyStateTitle.innerText = '请先连接服务器';
+                    emptyStateDesc.innerText = '前往“系统设置”连接远程服务器以获取实时监控';
+                    return;
+                }
+
+                // 追踪当前响应中的 ID
+                const currentIds = new Set(cameras.map(c => c.id));
+
+                // 1. 移除已掉线的摄像头
+                for (let [id, card] of activeCameras) {
+                    if (!currentIds.has(id)) {
+                        card.remove();
+                        activeCameras.delete(id);
+                    }
+                }
+
+                // 2. 添加或更新摄像头
+                if (cameras.length === 0) {
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('i').className = 'fas fa-video-slash';
+                    emptyStateTitle.innerText = '暂无视频流';
+                    emptyStateDesc.innerText = '服务器已连接，正在等待设备上线并发送心跳包数据...';
+                } else {
+                    emptyState.style.display = 'none';
+                    
+                    cameras.forEach(camera => {
+                        if (!activeCameras.has(camera.id)) {
+                            // 发现新上线的设备
+                            const card = createCameraCard(camera.id, camera.name, camera.webrtc_url);
+                            monitorGrid.appendChild(card);
+                            activeCameras.set(camera.id, card);
+                        } else {
+                            // 如果信息有变化则更新
+                            updateCameraCard(camera.id, camera.name, camera.webrtc_url);
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('获取摄像头列表失败:', error);
+            });
+    }
+
+    function createCameraCard(id, name, webrtcUrl) {
+        const card = document.createElement('div');
+        card.className = 'monitor-card';
+        card.id = `camera-card-${id}`;
+        
+        card.innerHTML = `
+            <div class="monitor-header">
+                <span class="camera-name"><i class="fas fa-map-marker-alt me-2"></i>${name}</span>
+                <span class="status-badge status-normal">
+                    <span class="status-dot"></span>activate
+                </span>
+            </div>
+            <div class="monitor-body">
+                <div class="video-overlay" id="overlay-${id}">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                    <div class="x-small text-primary">正在建立安全视频链路...</div>
+                </div>
+                <iframe src="${webrtcUrl}" allowfullscreen data-url="${webrtcUrl}" onload="hideOverlay('${id}')"></iframe>
+            </div>
+            <!-- PTZ 控制面板（方向键+居中一体化） -->
+            <div class="ptz-controls" id="ptz-controls-${id}" data-camera-id="${id}">
+                <button class="ptz-btn" data-action="up" aria-label="上移" style="grid-column:2; grid-row:1;">↑</button>
+                <button class="ptz-btn" data-action="left" aria-label="左移" style="grid-column:1; grid-row:2;">←</button>
+                <button class="ptz-btn" data-action="center" aria-label="居中镜头" style="grid-column:2; grid-row:2;">镜头居中</button>
+                <button class="ptz-btn" data-action="right" aria-label="右移" style="grid-column:3; grid-row:2;">→</button>
+                <button class="ptz-btn" data-action="down" aria-label="下移" style="grid-column:2; grid-row:3;">↓</button>
+            </div>
+            <div class="ptz-status" id="ptz-status-${id}">状态：就绪</div>
+            <div class="monitor-stats">
+                <div class="d-flex justify-content-between w-100 align-items-center">
+                    <span><i class="fas fa-video"></i> 远程视频流</span>
+                    <button class="btn-refresh-stream" onclick="refreshStream('${id}')">
+                        <i class="fas fa-sync-alt me-1"></i>重新连接
+                    </button>
+                </div>
+            </div>
+        `;
+        return card;
+    }
+
+    function hideOverlay(id) {
+        const overlay = document.getElementById(`overlay-${id}`);
+        if (overlay) {
+            overlay.classList.add('hidden');
+        }
+    }
+
+    function refreshStream(id) {
+        const card = document.getElementById(`camera-card-${id}`);
+        if (!card) return;
+        
+        const overlay = document.getElementById(`overlay-${id}`);
+        const iframe = card.querySelector('iframe');
+        const url = iframe.getAttribute('data-url');
+        
+        if (overlay) overlay.classList.remove('hidden');
+        iframe.src = '';
+        setTimeout(() => {
+            iframe.src = url;
+        }, 100);
+    }
+
+    function updateCameraCard(id, name, webrtcUrl) {
+        const card = activeCameras.get(id);
+        if (!card) return;
+
+        const nameEl = card.querySelector('.camera-name');
+        if (nameEl && nameEl.innerText !== name) {
+            nameEl.innerHTML = `<i class="fas fa-map-marker-alt me-2"></i>${name}`;
+        }
+
+        const iframe = card.querySelector('iframe');
+        if (iframe && iframe.getAttribute('data-url') !== webrtcUrl) {
+            iframe.src = webrtcUrl;
+            iframe.setAttribute('data-url', webrtcUrl);
+            const urlLabel = card.querySelector('.camera-url-label');
+            if (urlLabel) urlLabel.innerHTML = `<i class="fas fa-link"></i> ${webrtcUrl}`;
+        }
+    }
+
+    window.onbeforeunload = function() {
+        if (pollInterval) clearInterval(pollInterval);
+    };
+    
+    // PTZ 控制按钮点击处理
+    document.addEventListener('click', async function(event) {
+        const btn = event.target.closest('.ptz-btn');
+        if (!btn) return;
+        const controlGroup = btn.closest('[data-camera-id]');
+        const cameraId = controlGroup ? controlGroup.dataset.cameraId : null;
+        if (!cameraId) return;
+        const action = btn.dataset.action;
+        const payload = {
+            device_id: cameraId,
+            camera_id: cameraId,
+            action: action,
+            step: 10
+        };
+        // Disable all PTZ buttons for this camera to indicate loading
+        const btns = document.querySelectorAll(`#ptz-controls-${cameraId} .ptz-btn, #ptz-actions-${cameraId} .ptz-btn`);
+        btns.forEach(b => {
+            b.disabled = true;
+            if (!b.dataset.origText) b.dataset.origText = b.innerText;
+            b.innerText = '发送中...';
+        });
+        const statusEl = document.getElementById(`ptz-status-${cameraId}`);
+        if (statusEl) statusEl.innerText = '状态：发送中...';
+        try {
+            const resp = await fetch('/settings/api/mqtt/ptz', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await resp.json();
+            if (statusEl) {
+                if (resp.ok) {
+                    statusEl.innerText = `状态：发送成功 (${action})`;
+                } else {
+                    statusEl.innerText = `状态：发送失败 ${json && json.error ? '- ' + json.error : ''}`;
+                }
+            }
+        } catch (err) {
+            if (statusEl) statusEl.innerText = `状态：发送失败 - ${err.message}`;
+        } finally {
+            btns.forEach(b => {
+                b.disabled = false;
+                if (b.dataset.origText) b.innerText = b.dataset.origText;
+            });
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,807 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - VisionGuard AI 跌倒检测系统{% endblock %}
+
+{% block content %}
+<div class="guest-cockpit fade-in">
+    <section class="guest-hero row g-4 mb-4 align-items-stretch">
+        <div class="col-12 col-xl-8">
+            <div class="glass-card guest-hero-panel h-100">
+                <div class="guest-hero-copy">
+                    <div class="guest-kicker">Visitor Access / Overview Deck</div>
+                    <h2 class="fw-bold mb-3">
+                        <i class="fas fa-user-shield me-2 text-primary pulse-glow"></i>
+                        <span class="text-gradient">VisionGuard AI 访客驾驶舱</span>
+                    </h2>
+                    <p class="guest-hero-desc mb-4">当前账号可访问实时监控、告警记录与系统设置。你正在查看面向访客的总览控制台，用于快速进入核心功能并理解系统当前能力边界。</p>
+                    <div class="guest-hero-actions">
+                        <a href="{{ url_for('main.monitor') }}" class="btn btn-primary px-4"><i class="fas fa-video me-2"></i>打开监控中心</a>
+                        <a href="{{ url_for('main.alerts') }}" class="btn btn-outline-light px-4"><i class="fas fa-history me-2"></i>查看告警记录</a>
+                    </div>
+                </div>
+                <div class="guest-hero-status">
+                    <div class="guest-status-card">
+                        <div class="guest-status-label">访客模式</div>
+                        <div class="guest-status-value"><span class="guest-status-dot"></span>核心功能已开放</div>
+                        <div class="guest-status-subtitle">支持查看监控、记录与设置页面，不包含用户管理能力。</div>
+                    </div>
+                    <div class="guest-status-grid">
+                        <div class="guest-mini-tile">
+                            <span>监控访问</span>
+                            <strong>已开放</strong>
+                        </div>
+                        <div class="guest-mini-tile">
+                            <span>账号权限</span>
+                            <strong>受限</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="glass-card guest-clock-shell h-100">
+                <div class="guest-clock-top">
+                    <div>
+                        <div class="x-small text-muted text-uppercase">系统时间</div>
+                        <div class="guest-clock" id="guestClock">00:00:00</div>
+                        <div class="x-small text-secondary mt-1" id="guestClockDate">----/--/--</div>
+                    </div>
+                    <div class="guest-clock-icon"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="guest-clock-footer">
+                    <div class="guest-clock-line">
+                        <span>可访问模块</span>
+                        <strong>3 项</strong>
+                    </div>
+                    <div class="guest-clock-line">
+                        <span>账号类型</span>
+                        <strong>访客</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="row g-4 mb-4">
+        <div class="col-12 col-sm-6 col-xxl-3">
+            <div class="stat-card guest-stat-card">
+                <div class="stat-card-glow" style="background: rgba(14, 165, 233, 0.15);"></div>
+                <div class="stat-card-body">
+                    <div class="stat-icon bg-info-gradient"><i class="fas fa-video"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value">多页面</div>
+                        <div class="stat-label">监控入口可用</div>
+                    </div>
+                </div>
+                <div class="stat-footer text-info"><i class="fas fa-arrow-right me-1"></i>实时查看设备画面</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xxl-3">
+            <div class="stat-card guest-stat-card">
+                <div class="stat-card-glow" style="background: rgba(16, 185, 129, 0.15);"></div>
+                <div class="stat-card-body">
+                    <div class="stat-icon bg-success-gradient"><i class="fas fa-bell"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value">实时</div>
+                        <div class="stat-label">告警记录可查</div>
+                    </div>
+                </div>
+                <div class="stat-footer text-success"><i class="fas fa-check-circle me-1"></i>支持筛选与追溯</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xxl-3">
+            <div class="stat-card guest-stat-card">
+                <div class="stat-card-glow" style="background: rgba(245, 158, 11, 0.15);"></div>
+                <div class="stat-card-body">
+                    <div class="stat-icon bg-warning-gradient"><i class="fas fa-sliders-h"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value">开放</div>
+                        <div class="stat-label">系统参数可见</div>
+                    </div>
+                </div>
+                <div class="stat-footer text-warning"><i class="fas fa-wifi me-1"></i>可查看 MQTT 与设备配置</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xxl-3">
+            <div class="stat-card guest-stat-card">
+                <div class="stat-card-glow" style="background: rgba(239, 68, 68, 0.15);"></div>
+                <div class="stat-card-body">
+                    <div class="stat-icon bg-danger-gradient"><i class="fas fa-user-lock"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-value">受限</div>
+                        <div class="stat-label">用户管理不可用</div>
+                    </div>
+                </div>
+                <div class="stat-footer text-danger"><i class="fas fa-shield-alt me-1"></i>仅超级管理员可访问</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="row g-4 mb-4">
+        <div class="col-12 col-xxl-8">
+            <div class="glass-card guest-primary-panel h-100">
+                <div class="panel-header">
+                    <div>
+                        <h6 class="mb-1"><i class="fas fa-compass me-2 text-primary"></i>快速导航主视图</h6>
+                        <div class="x-small text-secondary">访客常用入口与能力说明</div>
+                    </div>
+                    <span class="badge bg-secondary bg-opacity-25 text-white x-small">访客常用入口</span>
+                </div>
+                <div class="panel-body p-4">
+                    <div class="quick-grid-visitor">
+                        <a href="{{ url_for('main.monitor') }}" class="quick-link-card text-decoration-none d-block h-100">
+                            <div class="quick-link-icon bg-info-gradient"><i class="fas fa-video"></i></div>
+                            <div>
+                                <h5>实时监控</h5>
+                                <p>进入多路视频画面查看页面，支持 PTZ 调整与设备联动。</p>
+                                <span>立即进入 <i class="fas fa-chevron-right ms-1"></i></span>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('main.alerts') }}" class="quick-link-card text-decoration-none d-block h-100">
+                            <div class="quick-link-icon bg-danger-gradient"><i class="fas fa-history"></i></div>
+                            <div>
+                                <h5>告警记录</h5>
+                                <p>按时间、地点和摄像头筛选告警，快速追踪跌倒事件。</p>
+                                <span>查看记录 <i class="fas fa-chevron-right ms-1"></i></span>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('settings.index') }}" class="quick-link-card text-decoration-none d-block h-100">
+                            <div class="quick-link-icon bg-warning-gradient"><i class="fas fa-cog"></i></div>
+                            <div>
+                                <h5>系统设置</h5>
+                                <p>查看 MQTT 状态、设备配置与联动参数，便于访客快速理解系统结构。</p>
+                                <span>打开设置 <i class="fas fa-chevron-right ms-1"></i></span>
+                            </div>
+                        </a>
+                        <div class="quick-link-card disabled-card h-100">
+                            <div class="quick-link-icon bg-secondary"><i class="fas fa-users-cog"></i></div>
+                            <div>
+                                <h5>用户管理</h5>
+                                <p>该模块仅超级管理员可见，用于用户账号、角色与权限管理。</p>
+                                <span>当前账号不可访问</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xxl-4">
+            <div class="guest-side-stack h-100">
+                <div class="glass-card dashboard-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h6 class="mb-1"><i class="fas fa-satellite-dish me-2 text-accent"></i>访客模式状态</h6>
+                            <div class="x-small text-secondary">功能开放度一览</div>
+                        </div>
+                    </div>
+                    <div class="panel-body p-4">
+                        <div class="status-list">
+                            <div class="status-item">
+                                <div>
+                                    <div class="status-title">视频监控</div>
+                                    <div class="status-subtitle">支持在线查看摄像头视频流</div>
+                                </div>
+                                <span class="status-pill success">已开放</span>
+                            </div>
+                            <div class="status-item">
+                                <div>
+                                    <div class="status-title">告警分析</div>
+                                    <div class="status-subtitle">支持查看与检索跌倒记录</div>
+                                </div>
+                                <span class="status-pill success">已开放</span>
+                            </div>
+                            <div class="status-item">
+                                <div>
+                                    <div class="status-title">设备设置</div>
+                                    <div class="status-subtitle">支持查看参数与连接状态</div>
+                                </div>
+                                <span class="status-pill success">已开放</span>
+                            </div>
+                            <div class="status-item">
+                                <div>
+                                    <div class="status-title">用户管理</div>
+                                    <div class="status-subtitle">账号、角色与权限管理</div>
+                                </div>
+                                <span class="status-pill danger">受限</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card dashboard-panel visitor-note-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h6 class="mb-1"><i class="fas fa-circle-info me-2 text-warning"></i>访客模式说明</h6>
+                            <div class="x-small text-secondary">当前账号边界</div>
+                        </div>
+                    </div>
+                    <div class="panel-body p-4 pt-3">
+                        <div class="visitor-note">
+                            <div class="visitor-note-icon"><i class="fas fa-circle-info"></i></div>
+                            <div>
+                                <div class="visitor-note-title">权限说明</div>
+                                <p class="mb-0">当前账号面向系统体验与日常查看场景设计，已开放核心业务功能；如需账号管理，请联系超级管理员。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .guest-cockpit {
+        width: 100%;
+    }
+
+    .guest-hero-panel {
+        padding: 28px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.9fr);
+        gap: 24px;
+        min-height: 100%;
+    }
+
+    .guest-kicker {
+        font-size: 0.76rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        margin-bottom: 14px;
+        font-weight: 800;
+    }
+
+    .guest-hero-desc {
+        max-width: 680px;
+        line-height: 1.8;
+        color: var(--text-secondary);
+    }
+
+    .guest-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .guest-hero-status {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .guest-status-card,
+    .guest-mini-tile,
+    .guest-clock-shell {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .guest-status-card {
+        border-radius: 22px;
+        padding: 20px;
+    }
+
+    .guest-status-label {
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .guest-status-value {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #fff;
+    }
+
+    .guest-status-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+        line-height: 1.6;
+    }
+
+    .guest-status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #22c55e;
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.12);
+        flex-shrink: 0;
+    }
+
+    .guest-status-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .guest-mini-tile {
+        border-radius: 18px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .guest-mini-tile span {
+        font-size: 0.76rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+    }
+
+    .guest-mini-tile strong {
+        color: #fff;
+        font-size: 0.96rem;
+    }
+
+    .guest-dashboard .text-gradient {
+        background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent-color) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .glass-card {
+        background: rgba(25, 25, 35, 0.4);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-panel { padding: 28px 30px; position: relative; overflow: hidden; }
+
+    .hero-panel::after {
+        content: "";
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 180px;
+        height: 180px;
+        background: radial-gradient(circle, rgba(244, 114, 182, 0.16), transparent 68%);
+        filter: blur(6px);
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        margin-bottom: 16px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        color: var(--primary-light);
+        background: rgba(244, 114, 182, 0.12);
+        border: 1px solid rgba(244, 114, 182, 0.18);
+    }
+
+    .hero-desc {
+        max-width: 720px;
+        line-height: 1.8;
+    }
+
+    .guest-clock-shell {
+        border-radius: 26px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 100%;
+    }
+
+    .guest-clock-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .guest-clock {
+        font-size: clamp(1.7rem, 3vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        font-family: 'Courier New', Courier, monospace;
+        color: var(--primary-light);
+    }
+
+    .guest-clock-icon {
+        width: 62px;
+        height: 62px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(249, 115, 22, 0.16), rgba(56, 189, 248, 0.16));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-light);
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .guest-clock-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .guest-clock-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .guest-clock-line strong {
+        color: #fff;
+        font-size: 0.95rem;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 24px 20px 15px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-card-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        filter: blur(60px);
+        z-index: -1;
+        opacity: 0.5;
+        transition: all 0.5s ease;
+    }
+
+    .guest-stat-card:hover .stat-card-glow {
+        transform: scale(1.5);
+        opacity: 0.8;
+    }
+
+    .guest-stat-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(244, 114, 182, 0.4);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(244, 114, 182, 0.1);
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .stat-card-body {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 15px;
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: white;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .stat-footer {
+        font-size: 0.72rem;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .bg-info-gradient { background: linear-gradient(135deg, #0ea5e9, #22d3ee); }
+    .bg-success-gradient { background: linear-gradient(135deg, #10b981, #34d399); }
+    .bg-warning-gradient { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .bg-danger-gradient { background: linear-gradient(135deg, #ef4444, #f87171); }
+    .bg-secondary { background: linear-gradient(135deg, #64748b, #94a3b8); }
+
+    .stat-value {
+        font-size: 1.7rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        opacity: 0.85;
+    }
+
+    .dashboard-panel {
+        overflow: hidden;
+    }
+
+    .guest-primary-panel,
+    .guest-side-stack {
+        height: 100%;
+    }
+
+    .guest-side-stack {
+        display: grid;
+        gap: 18px;
+    }
+
+    .panel-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .quick-grid-visitor {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .quick-link-card {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        padding: 20px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.35s ease;
+        color: var(--text-primary);
+        height: 100%;
+    }
+
+    .quick-link-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(244, 114, 182, 0.25);
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 16px 28px rgba(0, 0, 0, 0.18);
+        color: var(--text-primary);
+    }
+
+    .quick-link-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .quick-link-card h5 {
+        margin-bottom: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .quick-link-card p {
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+        line-height: 1.7;
+        font-size: 0.9rem;
+    }
+
+    .quick-link-card span {
+        color: var(--primary-light);
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .disabled-card {
+        opacity: 0.88;
+        cursor: default;
+    }
+
+    .disabled-card:hover {
+        transform: none;
+        border-color: rgba(255, 255, 255, 0.06);
+        box-shadow: none;
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .status-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .status-title {
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .status-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.82rem;
+    }
+
+    .status-pill {
+        min-width: 66px;
+        text-align: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .status-pill.success {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .status-pill.danger {
+        color: #fda4af;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .visitor-note-panel .panel-body {
+        height: 100%;
+    }
+
+    .visitor-note {
+        display: flex;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(34, 211, 238, 0.06));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .visitor-note-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-light);
+        background: rgba(244, 114, 182, 0.12);
+        flex-shrink: 0;
+    }
+
+    .visitor-note-title {
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    @media (max-width: 991.98px) {
+        .guest-hero-panel {
+            grid-template-columns: 1fr;
+            padding: 22px;
+        }
+
+        .quick-grid-visitor {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .guest-hero-panel,
+        .guest-clock-shell {
+            padding: 18px;
+        }
+
+        .guest-hero-actions {
+            flex-direction: column;
+        }
+
+        .guest-hero-actions .btn {
+            width: 100%;
+        }
+
+        .guest-status-grid,
+        .quick-grid-visitor {
+            grid-template-columns: 1fr;
+        }
+
+        .guest-clock-top {
+            align-items: center;
+        }
+
+        .stat-card {
+            padding: 20px 18px 14px;
+        }
+
+        .stat-card-body {
+            gap: 14px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.35rem;
+        }
+
+        .stat-value {
+            font-size: 1.55rem;
+        }
+
+        .panel-header {
+            padding: 14px 16px;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .quick-link-card {
+            padding: 16px;
+        }
+
+        .status-item {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .visitor-note {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateGuestClock() {
+        const clockEl = document.getElementById('guestClock');
+        const clockDateEl = document.getElementById('guestClockDate');
+        if (!clockEl || !clockDateEl) return;
+        const now = new Date();
+        clockEl.textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+        clockDateEl.textContent = now.toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            weekday: 'short'
+        });
+    }
+
+    updateGuestClock();
+    setInterval(updateGuestClock, 1000);
+</script>
+{% endblock %}
