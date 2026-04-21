@@ -234,6 +234,8 @@
 <script>
     let activeCameras = new Map();
     let pollInterval = null;
+    let espRow = 0;
+    let espCol = 0;
 
     document.addEventListener('DOMContentLoaded', function() {
         if (!document.getElementById('monitorGrid')) return;
@@ -322,14 +324,14 @@
                 <iframe src="${webrtcUrl}" allowfullscreen data-url="${webrtcUrl}" onload="hideOverlay('${id}')"></iframe>
             </div>
             <!-- PTZ 控制面板（方向键+居中一体化） -->
-            <div class="ptz-controls" id="ptz-controls-${id}" data-camera-id="${id}">
+            <div class="ptz-controls">
                 <button class="ptz-btn" data-action="up" aria-label="上移" style="grid-column:2; grid-row:1;">↑</button>
                 <button class="ptz-btn" data-action="left" aria-label="左移" style="grid-column:1; grid-row:2;">←</button>
                 <button class="ptz-btn" data-action="center" aria-label="居中镜头" style="grid-column:2; grid-row:2;">镜头居中</button>
                 <button class="ptz-btn" data-action="right" aria-label="右移" style="grid-column:3; grid-row:2;">→</button>
                 <button class="ptz-btn" data-action="down" aria-label="下移" style="grid-column:2; grid-row:3;">↓</button>
             </div>
-            <div class="ptz-status" id="ptz-status-${id}">状态：就绪</div>
+            <div class="ptz-status" id="ptz-status-center">row: 0, col: 0</div>
             <div class="monitor-stats">
                 <div class="d-flex justify-content-between w-100 align-items-center">
                     <span><i class="fas fa-video"></i> 远程视频流</span>
@@ -386,50 +388,53 @@
         if (pollInterval) clearInterval(pollInterval);
     };
     
-    // PTZ 控制按钮点击处理
+    // ESP8266 PTZ 控制按钮点击处理
     document.addEventListener('click', async function(event) {
         const btn = event.target.closest('.ptz-btn');
         if (!btn) return;
-        const controlGroup = btn.closest('[data-camera-id]');
-        const cameraId = controlGroup ? controlGroup.dataset.cameraId : null;
-        if (!cameraId) return;
+        
         const action = btn.dataset.action;
-        const payload = {
-            device_id: cameraId,
-            camera_id: cameraId,
-            action: action,
-            step: 10
-        };
-        // Disable all PTZ buttons for this camera to indicate loading
-        const btns = document.querySelectorAll(`#ptz-controls-${cameraId} .ptz-btn, #ptz-actions-${cameraId} .ptz-btn`);
-        btns.forEach(b => {
-            b.disabled = true;
-            if (!b.dataset.origText) b.dataset.origText = b.innerText;
-            b.innerText = '发送中...';
-        });
-        const statusEl = document.getElementById(`ptz-status-${cameraId}`);
-        if (statusEl) statusEl.innerText = '状态：发送中...';
+        
+        switch(action) {
+            case 'left':
+                espRow = espRow - 1;
+                break;
+            case 'right':
+                espRow = espRow + 1;
+                break;
+            case 'up':
+                espCol = espCol + 1;
+                break;
+            case 'down':
+                espCol = espCol - 1;
+                break;
+            case 'center':
+                espRow = 0;
+                espCol = 0;
+                break;
+            default:
+                return;
+        }
+        
+        const statusEl = document.getElementById('ptz-status-center');
+        if (statusEl) statusEl.innerText = `row: ${espRow}, col: ${espCol}`;
+        
         try {
-            const resp = await fetch('/settings/api/mqtt/ptz', {
+            const resp = await fetch('/settings/api/esp8266/ptz', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ row: espRow, col: espCol })
             });
             const json = await resp.json();
             if (statusEl) {
                 if (resp.ok) {
-                    statusEl.innerText = `状态：发送成功 (${action})`;
+                    statusEl.innerText = `发送成功 row: ${espRow}, col: ${espCol}`;
                 } else {
-                    statusEl.innerText = `状态：发送失败 ${json && json.error ? '- ' + json.error : ''}`;
+                    statusEl.innerText = `发送失败 ${json && json.error ? json.error : ''}`;
                 }
             }
         } catch (err) {
-            if (statusEl) statusEl.innerText = `状态：发送失败 - ${err.message}`;
-        } finally {
-            btns.forEach(b => {
-                b.disabled = false;
-                if (b.dataset.origText) b.innerText = b.dataset.origText;
-            });
+            if (statusEl) statusEl.innerText = `发送失败 - ${err.message}`;
         }
     });
 </script>

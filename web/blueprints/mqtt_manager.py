@@ -140,6 +140,25 @@ class MQTTManager:
         
         return self.publish("command", payload)
 
+    def send_esp8266_command(self, esp_id, row, col):
+        if not self.connected or not self.client:
+            return False, "MQTT未连接"
+        
+        try:
+            payload = {
+                'id': esp_id,
+                'row': row,
+                'col': col
+            }
+            topic = "rk3588lyh/esp8266/cmd"
+            result = self.client.publish(topic, json.dumps(payload), qos=1)
+            if result.rc == mqtt.MQTT_ERR_SUCCESS:
+                return True, "ESP8266指令发送成功"
+            else:
+                return False, "ESP8266指令发送失败"
+        except Exception as e:
+            return False, str(e)
+
     def disconnect(self):
         """断开连接"""
         if self.client:

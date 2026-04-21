@@ -4,6 +4,13 @@ D:\bishe\web\static\image# AGENTS.md - Code Guidelines for This Project
 
 **必须始终使用中文回答所有问题。** (Always answer all questions in Chinese.)
 
+**你始终要基于使用 superpowers 的 skill 去执行任务。** 在做任何修改代码之前，必须先加载并遵循相关 skill 的指导流程。例如：
+- 实现功能/修改行为 → 先加载 `brainstorming` skill
+- 遇到 bug/错误 → 先加载 `systematic-debugging` skill
+- 编写测试 → 先加载 `test-driven-development` skill
+- 完成实现后 → 使用 `verification-before-completion` skill 验证
+- 其他情况按需加载对应 skill
+
 ## 1. Project Overview
 
 - **Project Name**: 化工厂危险行为检测系统 (Chemical Plant Hazard Detection System)

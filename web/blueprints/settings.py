@@ -129,6 +129,27 @@ def get_mqtt_configs():
         } for c in unique_configs]
     }), 200
 
+@settings_bp.route('/api/esp8266/ptz', methods=['POST'])
+def esp8266_ptz():
+    from flask import current_app
+    data = request.json
+    row = data.get('row', 0)
+    col = data.get('col', 0)
+    
+    esp_id = current_app.config.get('ESP8266_ID', '002')
+    
+    try:
+        from blueprints.mqtt_manager import mqtt_manager
+        if not mqtt_manager or not mqtt_manager.connected:
+            return jsonify({'error': 'MQTT未连接'}), 400
+        
+        success, message = mqtt_manager.send_esp8266_command(esp_id, int(row), int(col))
+        if success:
+            return jsonify({'message': 'ESP8266指令发送成功', 'row': row, 'col': col}), 200
+        return jsonify({'error': message}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @settings_bp.route('/api/mqtt/ptz', methods=['POST'])
 def mqtt_ptz():
     # PTZ control: expect device_id, camera_id, action, and optional step
