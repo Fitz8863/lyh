@@ -26,8 +26,7 @@ def init_db(app):
             'auth.api_send_signup_code',
             'auth.send_verification_code',
             'static',
-            'capture.upload_capture',
-            'settings.intercom_webhook_stop'
+            'capture.upload_capture'
         ]
         if request.endpoint in allowed_routes:
             return
