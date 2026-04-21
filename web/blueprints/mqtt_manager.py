@@ -69,7 +69,7 @@ class MQTTManager:
                 self.last_info_time = time.time()
                 self.connected = True  # 收到消息说明连接肯定正常
                 
-                print(f"收到设备心跳: {device_id}, 摄像头: {camera_info.get('id', 'unknown')} @ {camera_info.get('location', 'unknown')}")
+                # print(f"收到设备心跳: {device_id}, 摄像头: {camera_info.get('id', 'unknown')} @ {camera_info.get('location', 'unknown')}")
             except Exception as e:
                 print(f"解析 rk3588lyh/info 消息失败: {e}")
             
@@ -140,6 +140,25 @@ class MQTTManager:
         
         return self.publish("command", payload)
 
+    def send_esp8266_command(self, esp_id, row, col):
+        if not self.connected or not self.client:
+            return False, "MQTT未连接"
+        
+        try:
+            payload = {
+                'id': esp_id,
+                'row': row,
+                'col': col
+            }
+            topic = "rk3588lyh/esp8266/cmd"
+            result = self.client.publish(topic, json.dumps(payload), qos=1)
+            if result.rc == mqtt.MQTT_ERR_SUCCESS:
+                return True, "ESP8266指令发送成功"
+            else:
+                return False, "ESP8266指令发送失败"
+        except Exception as e:
+            return False, str(e)
+
     def disconnect(self):
         """断开连接"""
         if self.client:
@@ -201,7 +220,7 @@ def init_mqtt(app):
         port=1883,
         username='',
         password='',
-        topic_prefix=app.config.get('MQTT_TOPIC_PREFIX', 'RK3588/camera')
+        topic_prefix=app.config.get('MQTT_TOPIC_PREFIX', 'rk3588lyh/camera')
     )
     return mqtt_manager
 
