@@ -21,7 +21,8 @@ def get_mqtt_status():
     """获取MQTT连接状态"""
     try:
         from blueprints.mqtt_manager import mqtt_manager
-        if mqtt_manager and mqtt_manager.broker:
+        if mqtt_manager and mqtt_manager.client:
+            mqtt_manager.connected = mqtt_manager.client.is_connected()
             return jsonify({
                 'connected': mqtt_manager.connected,
                 'broker': mqtt_manager.broker,

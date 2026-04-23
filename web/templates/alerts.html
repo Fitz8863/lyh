@@ -96,6 +96,42 @@
         box-shadow: 0 0 15px rgba(251, 113, 133, 0.4);
     }
 
+    .batch-delete-btn {
+        color: #fb7185;
+        background: transparent;
+        border: 1px solid rgba(251, 113, 133, 0.3);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+    .batch-delete-btn:hover {
+        background: #fb7185;
+        color: white;
+        box-shadow: 0 0 15px rgba(251, 113, 133, 0.4);
+    }
+
+    .batch-delete-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .form-check-input {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .selected-count {
+        font-size: 0.85rem;
+        color: var(--primary-light);
+    }
+
     .empty-state {
         text-align: center;
         padding: 60px 20px;
@@ -111,21 +147,45 @@
         opacity: 0.5;
     }
 
-    /* 弹窗样式 */
-    .modal-content {
-        background: rgba(25, 25, 35, 0.9);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--border-color);
-        border-radius: 20px;
-        color: white;
-    }
-
     .modal-header {
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .modal-footer {
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    #deleteOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 99999;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    #deleteOverlay .dialog-box {
+        background: rgba(30, 30, 50, 1);
+        border: 2px solid #fb7185;
+        border-radius: 20px;
+        padding: 24px;
+        width: 360px;
+        max-width: 90vw;
+        color: white;
+        box-shadow: 0 0 50px rgba(251, 113, 133, 0.5);
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    #deleteOverlay.active {
+        display: flex !important;
     }
 
     .refresh-btn {
@@ -162,12 +222,17 @@
 </div>
 {% else %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0 fw-bold">
-        <i class="fas fa-user-injured me-2" style="color: #fb7185;"></i>跌倒行为告警流水
-    </h4>
     <button class="refresh-btn" onclick="loadCaptures(1)">
         <i class="fas fa-sync-alt me-1"></i>刷新数据
     </button>
+    <div class="d-flex align-items-center gap-3">
+        <span id="selectedInfo" class="selected-count" style="display: none;">
+            已选择 <span id="selectedCount">0</span> 条记录
+        </span>
+        <button id="batchDeleteBtn" class="batch-delete-btn" onclick="prepareBatchDelete()" style="display: none;">
+            <i class="fas fa-trash-alt me-1"></i>批量删除
+        </button>
+    </div>
 </div>
 
 <!-- 筛选栏 -->
@@ -205,10 +270,13 @@
         <table class="table" id="capturesTable">
             <thead>
                 <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" class="form-check-input" id="selectAll" onchange="toggleSelectAll()">
+                    </th>
                     <th>预览</th>
                     <th>事件类型/等级</th>
                     <th>跌倒地点</th>
-                    <th>传感器 ID</th>
+                    <th>摄像头 ID</th>
                     <th>发生时间</th>
                     <th class="text-end">操作</th>
                 </tr>
@@ -256,31 +324,27 @@
     </div>
 </div>
 
-<!-- 删除确认模态框 -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title"><i class="fas fa-user-nurse me-2 text-danger"></i>管理员安全确认</h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p class="x-small text-muted mb-3">此操作不可撤销，请输出管理员密码以确认删除该条抓拍记录。</p>
-                <input type="password" class="form-control" id="adminPassword" placeholder="请输入管理员密码">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" id="confirmDeleteBtn">确认删除</button>
-            </div>
+<!-- 删除确认弹窗 -->
+<div id="deleteOverlay">
+    <div class="dialog-box">
+        <h6 class="mb-3"><i class="fas fa-user-nurse me-2 text-danger"></i>管理员安全确认</h6>
+        <p class="x-small text-muted mb-3" id="deleteModalText">此操作不可撤销，请输入管理员密码以确认删除该条抓拍记录。</p>
+        <input type="password" class="form-control mb-3" id="adminPassword" placeholder="请输入管理员密码">
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="closeDeleteOverlay()">取消</button>
+            <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" id="confirmDeleteBtn">确认删除</button>
         </div>
     </div>
 </div>
 {% endif %}
+{% endblock %}
 
 {% block extra_js %}
 <script>
     let capturesLoaded = false;
     let deleteTargetId = null;
+    let selectedIds = new Set();
+    let isBatchDelete = false;
     let currentPage = 1;
     
     document.addEventListener('DOMContentLoaded', function() {
@@ -288,9 +352,13 @@
         capturesLoaded = true;
         loadCaptures(1);
         
-        // 绑定删除确认按钮
         document.getElementById('confirmDeleteBtn')?.addEventListener('click', executeDelete);
     });
+
+    function closeDeleteOverlay() {
+        document.getElementById('deleteOverlay').classList.remove('active');
+        document.getElementById('adminPassword').value = '';
+    }
 
     function resetFilters() {
         document.getElementById('filterForm').reset();
@@ -299,6 +367,56 @@
 
     function changePage(delta) {
         loadCaptures(currentPage + delta);
+    }
+
+    function updateSelectionUI() {
+        const count = selectedIds.size;
+        const selectedInfo = document.getElementById('selectedInfo');
+        const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+        const selectedCount = document.getElementById('selectedCount');
+        
+        if (count > 0) {
+            selectedInfo.style.display = 'inline';
+            batchDeleteBtn.style.display = 'inline-block';
+            selectedCount.textContent = count;
+        } else {
+            selectedInfo.style.display = 'none';
+            batchDeleteBtn.style.display = 'none';
+        }
+        
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.capture-checkbox');
+        const checkedCount = document.querySelectorAll('.capture-checkbox:checked').length;
+        
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+        }
+    }
+
+    function toggleSelectAll() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.capture-checkbox');
+        
+        checkboxes.forEach(cb => {
+            cb.checked = selectAllCheckbox.checked;
+            const id = parseInt(cb.dataset.id);
+            if (selectAllCheckbox.checked) {
+                selectedIds.add(id);
+            } else {
+                selectedIds.delete(id);
+            }
+        });
+        
+        updateSelectionUI();
+    }
+
+    function toggleSelect(id) {
+        if (selectedIds.has(id)) {
+            selectedIds.delete(id);
+        } else {
+            selectedIds.add(id);
+        }
+        updateSelectionUI();
     }
 
     function loadCaptures(page = 1) {
@@ -356,6 +474,12 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>
+                                <input type="checkbox" class="form-check-input capture-checkbox" 
+                                       data-id="${capture.id}" 
+                                       ${selectedIds.has(capture.id) ? 'checked' : ''}
+                                       onchange="toggleSelect(${capture.id})">
+                            </td>
+                            <td>
                                 <img class="preview-img" src="${previewPath}" 
                                      onclick="showImage('${fullPath}')"
                                      onerror="this.src='/static/img/placeholder.png'">
@@ -376,6 +500,8 @@
                         `;
                         list.appendChild(row);
                     });
+                    
+                    updateSelectionUI();
                 }
             })
             .catch(error => console.error('获取抓拍记录失败:', error))
@@ -402,9 +528,25 @@
     }
 
     function prepareDelete(id) {
+        isBatchDelete = false;
         deleteTargetId = id;
+        document.getElementById('deleteModalText').textContent = '此操作不可撤销，请输入管理员密码以确认删除该条抓拍记录。';
         document.getElementById('adminPassword').value = '';
-        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        document.getElementById('deleteOverlay').classList.add('active');
+        document.getElementById('adminPassword').focus();
+    }
+
+    function prepareBatchDelete() {
+        if (selectedIds.size === 0) {
+            alert('请先选择要删除的记录');
+            return;
+        }
+        
+        isBatchDelete = true;
+        document.getElementById('deleteModalText').textContent = `此操作不可撤销，将删除 ${selectedIds.size} 条记录，请输入管理员密码确认。`;
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('deleteOverlay').classList.add('active');
+        document.getElementById('adminPassword').focus();
     }
 
     function executeDelete() {
@@ -419,6 +561,14 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 处理中...';
 
+        if (isBatchDelete) {
+            executeBatchDelete(password, btn, originalText);
+        } else {
+            executeSingleDelete(password, btn, originalText);
+        }
+    }
+
+    function executeSingleDelete(password, btn, originalText) {
         fetch(`/capture/delete/${deleteTargetId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -427,10 +577,34 @@
         .then(res => res.json())
         .then(data => {
             if (data.code === 200) {
-                // 关闭弹窗
-                const modalEl = document.getElementById('deleteModal');
-                bootstrap.Modal.getInstance(modalEl).hide();
-                // 重新加载列表
+                closeDeleteOverlay();
+                selectedIds.delete(deleteTargetId);
+                loadCaptures();
+            } else {
+                alert(data.error || '删除失败');
+            }
+        })
+        .catch(err => alert('网络错误: ' + err))
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+    }
+
+    function executeBatchDelete(password, btn, originalText) {
+        fetch('/capture/batch-delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                password: password,
+                ids: Array.from(selectedIds)
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.code === 200) {
+                closeDeleteOverlay();
+                selectedIds.clear();
                 loadCaptures();
             } else {
                 alert(data.error || '删除失败');
@@ -443,5 +617,4 @@
         });
     }
 </script>
-{% endblock %}
 {% endblock %}

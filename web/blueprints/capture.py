@@ -20,6 +20,13 @@ def allowed_file(filename):
 @capture_bp.route('/upload', methods=['POST'])
 def upload_capture():
     """接收远程摄像头上传的抓拍图片"""
+    from blueprints.mqtt_manager import mqtt_manager
+    if not mqtt_manager or not mqtt_manager.connected:
+        if mqtt_manager and mqtt_manager.client:
+            mqtt_manager.connected = mqtt_manager.client.is_connected()
+        if not mqtt_manager or not mqtt_manager.connected:
+            return jsonify({'code': 503, 'message': 'MQTT服务器未连接'}), 503
+    
     # 验证文件
     if 'file' not in request.files:
         return jsonify({'code': 400, 'message': '缺少文件参数'}), 400
@@ -244,3 +251,56 @@ def delete_capture(capture_id):
             'code': 500,
             'error': f'删除失败: {str(e)}'
         }), 500
+
+@capture_bp.route('/batch-delete', methods=['POST'])
+@login_required
+def batch_delete_captures():
+    data = request.get_json()
+    password = data.get('password')
+    ids = data.get('ids', [])
+    
+    if not password:
+        return jsonify({'code': 400, 'error': '请输入管理员密码'}), 400
+    
+    if not ids or len(ids) == 0:
+        return jsonify({'code': 400, 'error': '请选择要删除的记录'}), 400
+    
+    from flask_bcrypt import Bcrypt
+    from flask import current_app
+    bcrypt = Bcrypt(current_app._get_current_object())
+    
+    if not bcrypt.check_password_hash(current_user.password, password):
+        return jsonify({'code': 403, 'error': '密码错误，无权删除'}), 403
+
+    try:
+        deleted_count = 0
+        for capture_id in ids:
+            capture = Capture.query.get(capture_id)
+            if capture:
+                image_path = os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    'static', capture.image_path
+                )
+                if os.path.exists(image_path):
+                    os.remove(image_path)
+                
+                if capture.thumbnail_path:
+                    thumbnail_path = os.path.join(
+                        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        'static', capture.thumbnail_path
+                    )
+                    if os.path.exists(thumbnail_path):
+                        os.remove(thumbnail_path)
+                
+                db.session.delete(capture)
+                deleted_count += 1
+        
+        db.session.commit()
+        
+        return jsonify({
+            'code': 200,
+            'message': f'成功删除 {deleted_count} 条记录'
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'code': 500, 'error': f'删除失败: {str(e)}'}), 500

@@ -47,6 +47,8 @@ class MQTTManager:
             print(f"MQTT连接失败, 返回码: {rc}")
 
     def _on_message(self, client, userdata, msg):
+        self.connected = True
+        
         if msg.topic == "rk3588lyh/info":
             try:
                 payload = json.loads(msg.payload.decode('utf-8'))
@@ -91,25 +93,52 @@ class MQTTManager:
         try:
             from flask_mail import Message
             from exts import mail
+            from blueprints.models import Capture
+            from blueprints import db
+            import os
             
             device_id = data.get('device_id', 'unknown')
             camera_id = data.get('camera_id', 'unknown')
             count = data.get('count', 0)
             
             subject = "跌倒告警通知"
-            body = f"跌倒告警通知\n\n设备ID: {device_id}\n摄像头ID: {camera_id}\n检测次数: {count}\n\n请及时处理！"
+            body = f"跌倒告警通知\n\n设备ID: {device_id}\n摄像头ID: {camera_id}\n第: {count}次检测\n\n检测到有人摔倒了，请及时处理！"
             
             from app import app
             with app.app_context():
                 target_emails = app.config.get('TARGET_EMAIL', [])
                 sender = app.config.get('MAIL_DEFAULT_SENDER')
                 
-                if target_emails and sender:
-                    msg = Message(subject, recipients=target_emails, body=body)
-                    mail.send(msg)
-                    print(f"跌倒告警邮件已发送至: {target_emails}")
-                else:
+                if not target_emails or not sender:
                     print("未配置目标邮箱，跳过邮件发送")
+                    return
+                
+                msg = Message(subject, recipients=target_emails, body=body)
+                
+                recent_capture = Capture.query.filter_by(camera_id=camera_id).order_by(Capture.capture_time.desc()).first()
+                
+                if recent_capture:
+                    image_path = os.path.join(
+                        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        'static',
+                        recent_capture.image_path
+                    )
+                    
+                    if os.path.exists(image_path):
+                        with open(image_path, 'rb') as f:
+                            msg.attach(
+                                filename=os.path.basename(image_path),
+                                content_type='image/jpeg',
+                                data=f.read()
+                            )
+                        print(f"已附加最近抓拍图片: {recent_capture.image_path}")
+                    else:
+                        print(f"最近抓拍图片不存在: {recent_capture.image_path}")
+                else:
+                     print("没有图片上传过来，有问题！！！！")
+                
+                mail.send(msg)
+                print(f"跌倒告警邮件（含图片）已发送至: {target_emails}")
         except Exception as e:
             print(f"发送跌倒告警邮件失败: {e}")
             

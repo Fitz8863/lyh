@@ -397,16 +397,16 @@
         
         switch(action) {
             case 'left':
-                espRow = espRow - 1;
+                espRow = Math.max(-10, espRow - 1);
                 break;
             case 'right':
-                espRow = espRow + 1;
+                espRow = Math.min(10, espRow + 1);
                 break;
             case 'up':
-                espCol = espCol + 1;
+                espCol = Math.min(8, espCol + 1);
                 break;
             case 'down':
-                espCol = espCol - 1;
+                espCol = Math.max(-8, espCol - 1);
                 break;
             case 'center':
                 espRow = 0;
