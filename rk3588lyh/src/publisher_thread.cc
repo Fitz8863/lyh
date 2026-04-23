@@ -71,8 +71,8 @@ std::string PublisherThread::BuildJsonMessage() {
     return oss.str();
 }
 
-std::string PublisherThread::BuildDetectionMessage(const object_detect_result_list& results, int match_frames, int success_count) {
-    if (results.count <= 0) {
+std::string PublisherThread::BuildDetectionMessage(const object_detect_result_list& results, int target_class_id, int match_frames, int success_count) {
+    if (target_class_id < 0) {
         return "";
     }
     
@@ -82,21 +82,10 @@ std::string PublisherThread::BuildDetectionMessage(const object_detect_result_li
     int64_t timestamp = status_.GetTimestamp();
     
     oss << "{"
-        << "\"device_id\":\"" << device_id_ << "\","
-        << "\"camera_id\":\"" << status_.camera_id << "\","
+        << "\"device_id\":\"" << device_id_ << "\"," 
+        << "\"camera_id\":\"" << status_.camera_id << "\"," 
         << "\"timestamp_ns\":" << timestamp << ","
-        << "\"detections\":[";
-    
-    for (int i = 0; i < results.count; i++) {
-        if (i > 0) oss << ",";
-        const auto& det = results.results[i];
-        oss << "{"
-            << "\"class\":\"" << coco_cls_to_name(det.cls_id) << "\","
-            << "\"confidence\":" << (det.prop * 100) << ","
-            << "}";
-    }
-    
-    oss << "],"
+        << "\"detection\":\"" << coco_cls_to_name(target_class_id) << "\"," 
         << "\"count\":" << results.count << ","
         << "\"window_match_frames\":" << match_frames << ","
         << "\"trigger_success_count\":" << success_count
@@ -129,10 +118,11 @@ void PublisherThread::Run() {
             
             if (!report_topic_.empty()) {
                 object_detect_result_list report_results;
+                int target_class_id = -1;
                 int match_frames = 0;
                 int success_count = 0;
-                if (status_.ConsumeDetectionReport(report_results, match_frames, success_count)) {
-                    std::string det_payload = BuildDetectionMessage(report_results, match_frames, success_count);
+                if (status_.ConsumeDetectionReport(report_results, target_class_id, match_frames, success_count)) {
+                    std::string det_payload = BuildDetectionMessage(report_results, target_class_id, match_frames, success_count);
                     if (!det_payload.empty()) {
                         auto det_msg = mqtt::make_message(report_topic_, det_payload, 1, false);
                         client_->publish(det_msg)->wait();

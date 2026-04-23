@@ -246,7 +246,7 @@ void CaptureThread::Run()
 
                         if (trigger_success_count >= trigger_config_.trigger_count)
                         {
-                            status_.QueueDetectionReport(last_matching_results, trigger_window_match_frames, trigger_success_count);
+                            status_.QueueDetectionReport(last_matching_results, trigger_config_.target_class_id, trigger_window_match_frames, trigger_success_count);
                             std::cout << "[Trigger] MQTT report queued: target_class_id="
                                       << trigger_config_.target_class_id
                                       << " elapsed=" << trigger_elapsed << "s"
