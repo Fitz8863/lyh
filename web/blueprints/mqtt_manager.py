@@ -15,11 +15,13 @@ class MQTTManager:
         self.connected = False
         self.latest_jetson_info = None
         self.last_info_time = 0
-        # 存储多个设备的最新心跳数据: { device_id: {info: {...}, last_seen: timestamp} }
         self.devices = {}
+        self._app = None
     
-    def connect(self):
-        """连接MQTT服务器"""
+    def connect(self, app=None):
+        if app:
+            self._app = app
+        
         self.client = mqtt.Client()
         if self.username and self.password:
             self.client.username_pw_set(self.username, self.password)
@@ -104,7 +106,11 @@ class MQTTManager:
             subject = "跌倒告警通知"
             body = f"跌倒告警通知\n\n设备ID: {device_id}\n摄像头ID: {camera_id}\n第: {count}次检测\n\n检测到有人摔倒了，请及时处理！"
             
-            from app import app
+            app = self._app
+            if not app:
+                print("Flask app 未初始化，无法发送邮件")
+                return
+            
             with app.app_context():
                 target_emails = app.config.get('TARGET_EMAIL', [])
                 sender = app.config.get('MAIL_DEFAULT_SENDER')
@@ -143,11 +149,13 @@ class MQTTManager:
             print(f"发送跌倒告警邮件失败: {e}")
             
     def _on_disconnect(self, client, userdata, rc):
-        self.connected = False
         print(f"MQTT断开连接, 返回码: {rc}")
         if rc != 0:
-            print("尝试自动重连...")
-            # loop_start 会处理自动重连，我们只需要更新状态
+            print("意外断开，等待自动重连...")
+        if self.client:
+            self.connected = self.client.is_connected()
+        else:
+            self.connected = False
     
     def check_connection(self):
         """主动检查连接状态"""

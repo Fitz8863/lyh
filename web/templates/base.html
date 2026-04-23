@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,13 +15,14 @@
             }
         })();
     </script>
-    
+
     <link href="{{ url_for('static', filename='bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-    
+
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
     <div class="app-backdrop" aria-hidden="true">
         <div class="app-backdrop-grid"></div>
@@ -28,136 +30,158 @@
         <div class="app-backdrop-glow app-backdrop-glow-right"></div>
     </div>
     <div class="app-shell">
-    <div class="app-layout">
-    <aside class="navbar navbar-dark app-navbar app-sidebar">
-        <div class="app-sidebar-inner">
-            <div class="app-sidebar-top">
-                <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                    <i class="fas fa-user-nurse me-2"></i>VisionGuard AI
-                </a>
-                <button class="navbar-toggler app-sidebar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="切换导航">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-            </div>
+        <div class="app-layout">
+            <aside class="navbar navbar-dark app-navbar app-sidebar">
+                <div class="app-sidebar-inner">
+                    <div class="app-sidebar-top">
+                        <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                            <i class="fas fa-user-nurse me-2"></i>VisionGuard AI
+                        </a>
+                        <button class="navbar-toggler app-sidebar-toggler" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                            aria-label="切换导航">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
 
-            <div class="collapse app-sidebar-panel d-lg-flex" id="navbarNav">
-                <div class="app-sidebar-section">
-                    <div class="app-sidebar-label">导航</div>
-                    <ul class="navbar-nav app-nav-list">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.index') }}"><i class="fas fa-home me-2"></i>首页</a>
-                        </li>
-                        {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.monitor') }}"><i class="fas fa-video me-2"></i>实时监控</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.alerts') }}"><i class="fas fa-bell me-2"></i>跌倒抓拍记录</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('settings.index') }}"><i class="fas fa-cog me-2"></i>系统设置</a>
-                        </li>
-                        {% endif %}
-                        {% if current_user.is_authenticated and current_user.is_super_admin %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('user_mgmt.index') }}"><i class="fas fa-users-cog me-2"></i>用户管理</a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </div>
+                    <div class="collapse app-sidebar-panel d-lg-flex" id="navbarNav">
+                        <div class="app-sidebar-section">
+                            <div class="app-sidebar-label">导航</div>
+                            <ul class="navbar-nav app-nav-list">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('main.index') }}"><i
+                                            class="fas fa-home me-2"></i>首页</a>
+                                </li>
+                                {% if current_user.is_authenticated %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('main.monitor') }}"><i
+                                            class="fas fa-video me-2"></i>实时监控</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('main.alerts') }}"><i
+                                            class="fas fa-bell me-2"></i>跌倒抓拍记录</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('settings.index') }}"><i
+                                            class="fas fa-cog me-2"></i>系统设置</a>
+                                </li>
+                                {% endif %}
+                                {% if current_user.is_authenticated and current_user.is_super_admin %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('user_mgmt.index') }}"><i
+                                            class="fas fa-users-cog me-2"></i>用户管理</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
 
-                <div class="app-sidebar-footer">
-                    <button type="button" class="nav-link app-theme-toggle" id="themeToggleBtn" aria-label="切换白天和黑夜模式">
-                        <i class="fas fa-sun me-2" id="themeToggleIcon"></i>
-                        <span id="themeToggleText">切换白天模式</span>
-                    </button>
-                    {% if current_user.is_authenticated %}
-                    <div class="app-profile-card">
-                        <div class="avatar-nav app-profile-avatar">
-                            {% if current_user.avatar_url %}
-                                <img src="{{ url_for('static', filename=current_user.avatar_url) }}" class="rounded-circle border border-2 border-primary-light" style="width: 42px; height: 42px; object-fit: cover;" alt="用户头像">
-                            {% else %}
-                                <div class="rounded-circle bg-primary bg-opacity-20 d-flex align-items-center justify-content-center border border-2 border-primary-light" style="width: 42px; height: 42px;">
-                                    <i class="fas fa-user text-primary-light" style="font-size: 0.95rem;"></i>
+                        <div class="app-sidebar-footer">
+                            <button type="button" class="nav-link app-theme-toggle" id="themeToggleBtn"
+                                aria-label="切换白天和黑夜模式">
+                                <i class="fas fa-sun me-2" id="themeToggleIcon"></i>
+                                <span id="themeToggleText">切换白天模式</span>
+                            </button>
+                            {% if current_user.is_authenticated %}
+                            <div class="app-profile-card">
+                                <div class="avatar-nav app-profile-avatar">
+                                    {% if current_user.avatar_url %}
+                                    <img src="{{ url_for('static', filename=current_user.avatar_url) }}"
+                                        class="rounded-circle border border-2 border-primary-light"
+                                        style="width: 42px; height: 42px; object-fit: cover;" alt="用户头像">
+                                    {% else %}
+                                    <div class="rounded-circle bg-primary bg-opacity-20 d-flex align-items-center justify-content-center border border-2 border-primary-light"
+                                        style="width: 42px; height: 42px;">
+                                        <i class="fas fa-user text-primary-light" style="font-size: 0.95rem;"></i>
+                                    </div>
+                                    {% endif %}
                                 </div>
+                                <div class="app-profile-meta">
+                                    <button type="button"
+                                        class="btn btn-link nav-link profile-trigger app-profile-trigger text-start"
+                                        data-bs-toggle="modal" data-bs-target="#profileModal"
+                                        style="text-decoration: none;">
+                                        {{ current_user.username }}
+                                        <i class="fas fa-pen-to-square ms-1" style="font-size: 0.75rem;"></i>
+                                    </button>
+                                    <small id="navbarSignature" class="text-secondary app-profile-signature">
+                                        {{ current_user.signature or '这个人很神秘，什么都没留下。' }}
+                                    </small>
+                                </div>
+                            </div>
+                            <a class="nav-link app-logout-link" href="{{ url_for('auth.logout') }}"><i
+                                    class="fas fa-sign-out-alt me-2"></i>退出登录</a>
+                            {% else %}
+                            <a class="nav-link app-logout-link" href="{{ url_for('auth.login') }}"><i
+                                    class="fas fa-sign-in-alt me-2"></i>登录</a>
                             {% endif %}
                         </div>
-                        <div class="app-profile-meta">
-                            <button type="button" class="btn btn-link nav-link profile-trigger app-profile-trigger text-start" data-bs-toggle="modal" data-bs-target="#profileModal" style="text-decoration: none;">
-                                {{ current_user.username }}
-                                <i class="fas fa-pen-to-square ms-1" style="font-size: 0.75rem;"></i>
-                            </button>
-                            <small id="navbarSignature" class="text-secondary app-profile-signature">
-                                {{ current_user.signature or '这个人很神秘，什么都没留下。' }}
-                            </small>
-                        </div>
                     </div>
-                    <a class="nav-link app-logout-link" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>退出登录</a>
-                    {% else %}
-                    <a class="nav-link app-logout-link" href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt me-2"></i>登录</a>
-                    {% endif %}
                 </div>
-            </div>
-        </div>
-    </aside>
+            </aside>
 
-    <main class="app-main">
-    <div class="container-fluid page-shell pb-4">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
+            <main class="app-main">
+                <div class="container-fluid page-shell pb-4">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    {% for message in messages %}
                     <div class="alert alert-info alert-dismissible fade show" role="alert">
                         <i class="fas fa-info-circle me-2"></i>{{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(1);"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                            style="filter: invert(1);"></button>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
 
-        {% block content %}{% endblock %}
-    </div>
-    </main>
-    </div>
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
 
-    {% if current_user.is_authenticated %}
-    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content profile-modal-shell">
-                <div class="modal-header profile-modal-header">
-                    <h5 class="modal-title" id="profileModalLabel">
-                        <i class="fas fa-user-pen me-2" style="color: var(--primary-light);"></i>编辑个人资料
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label text-secondary">用户名</label>
-                        <input type="text" class="form-control" value="{{ current_user.username }}" disabled>
+        {% if current_user.is_authenticated %}
+        <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content profile-modal-shell">
+                    <div class="modal-header profile-modal-header">
+                        <h5 class="modal-title" id="profileModalLabel">
+                            <i class="fas fa-user-pen me-2" style="color: var(--primary-light);"></i>编辑个人资料
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
-                    <div class="mb-2">
-                        <label for="signatureInput" class="form-label text-secondary">个性签名</label>
-                        <textarea id="signatureInput" class="form-control" rows="3" maxlength="30" placeholder="写一句展示给大家的话，30字以内">{{ current_user.signature or '' }}</textarea>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">用户名</label>
+                            <input type="text" class="form-control" value="{{ current_user.username }}" disabled>
+                        </div>
+                        <div class="mb-2">
+                            <label for="signatureInput" class="form-label text-secondary">个性签名</label>
+                            <textarea id="signatureInput" class="form-control" rows="3" maxlength="30"
+                                placeholder="写一句展示给大家的话，30字以内">{{ current_user.signature or '' }}</textarea>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-secondary">最多 30 个字</small>
+                            <small id="signatureCount" class="text-secondary">{{ (current_user.signature or '')|length
+                                }}/30</small>
+                        </div>
+                        <div id="profileSaveHint" class="small mt-3" style="min-height: 20px;"></div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-secondary">最多 30 个字</small>
-                        <small id="signatureCount" class="text-secondary">{{ (current_user.signature or '')|length }}/30</small>
+                    <div class="modal-footer profile-modal-footer">
+                        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="saveSignatureBtn">保存签名</button>
                     </div>
-                    <div id="profileSaveHint" class="small mt-3" style="min-height: 20px;"></div>
-                </div>
-                <div class="modal-footer profile-modal-footer">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="saveSignatureBtn">保存签名</button>
                 </div>
             </div>
         </div>
-    </div>
-    {% endif %}
+        {% endif %}
 
-    <!-- 实时通知容器 -->
-    <div id="notification-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; width: 320px;"></div>
+        <!-- 实时通知容器 -->
+        <div id="notification-container"
+            style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; width: 320px;"></div>
 
-    <div id="alarm-btn" style="position: fixed; bottom: 20px; left: 20px; z-index: 10000; cursor: pointer; display: flex; align-items: center;">
-        <div class="alarm-icon-part" style="
+        <div id="alarm-btn"
+            style="position: fixed; bottom: 20px; left: 20px; z-index: 10000; cursor: pointer; display: flex; align-items: center;">
+            <div class="alarm-icon-part" style="
             width: 40px;
             height: 40px;
             background: rgba(25, 25, 35, 0.85);
@@ -171,9 +195,9 @@
             z-index: 2;
             flex-shrink: 0;
         ">
-            <i class="fas fa-volume-up" id="alarm-icon" style="font-size: 1.1rem; color: #10b981;"></i>
-        </div>
-        <div class="alarm-text-part" style="
+                <i class="fas fa-volume-up" id="alarm-icon" style="font-size: 1.1rem; color: #10b981;"></i>
+            </div>
+            <div class="alarm-text-part" style="
             background: rgba(25, 25, 35, 0.85);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.15);
@@ -191,12 +215,13 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 1;
         ">
-            <span id="alarm-text">点击静音</span>
+                <span id="alarm-text">点击静音</span>
+            </div>
         </div>
-    </div>
 
-    <div id="stop-alarm-btn" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10001; display: none; cursor: pointer;">
-        <div style="
+        <div id="stop-alarm-btn"
+            style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10001; display: none; cursor: pointer;">
+            <div style="
             background: rgba(239, 68, 68, 0.95);
             backdrop-filter: blur(10px);
             border: 2px solid #fca5a5;
@@ -208,149 +233,149 @@
             animation: pulse-border 1s infinite;
             box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
         ">
-            <i class="fas fa-bell me-2"></i>点击停止报警
+                <i class="fas fa-bell me-2"></i>点击停止报警
+            </div>
         </div>
-    </div>
 
-    <script src="{{ url_for('static', filename='bootstrap/bootstrap.bundle.min.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    
-    <script>
-        // ==================== 报警声音系统 ====================
-        class AlarmSound {
-            constructor() {
-                this.audioCtx = null;
-                this.isPlaying = false;
-                this.alarmInterval = null;
-                this.autoStopTimer = null;
-                this.isMuted = false;
-            }
+        <script src="{{ url_for('static', filename='bootstrap/bootstrap.bundle.min.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
-            init() {
-                if (!this.audioCtx) {
-                    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (this.audioCtx.state === 'suspended') {
-                    this.audioCtx.resume();
-                }
-            }
-
-            playSiren() {
-                if (!this.audioCtx || this.isMuted) return;
-                
-                const now = this.audioCtx.currentTime;
-                const oscillator = this.audioCtx.createOscillator();
-                const gainNode = this.audioCtx.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(this.audioCtx.destination);
-                
-                oscillator.type = 'sine';
-                gainNode.gain.value = 0.3;
-                
-                oscillator.frequency.setValueAtTime(800, now);
-                oscillator.frequency.linearRampToValueAtTime(1200, now + 0.15);
-                oscillator.frequency.linearRampToValueAtTime(800, now + 0.3);
-                
-                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                
-                oscillator.start(now);
-                oscillator.stop(now + 0.3);
-            }
-
-            startAlarm() {
-                this.init();
-                
-                if (this.isPlaying) {
-                    this.resetAutoStop();
-                    return;
-                }
-                
-                this.isPlaying = true;
-                document.getElementById('stop-alarm-btn').style.display = 'block';
-                this.playSiren();
-                
-                this.alarmInterval = setInterval(() => {
-                    this.playSiren();
-                }, 400);
-                
-                this.resetAutoStop();
-            }
-
-            resetAutoStop() {
-                if (this.autoStopTimer) {
-                    clearTimeout(this.autoStopTimer);
-                }
-                this.autoStopTimer = setTimeout(() => {
-                    this.stopAlarm();
-                }, 3000);
-            }
-
-            stopAlarm() {
-                this.isPlaying = false;
-                if (this.alarmInterval) {
-                    clearInterval(this.alarmInterval);
+        <script>
+            // ==================== 报警声音系统 ====================
+            class AlarmSound {
+                constructor() {
+                    this.audioCtx = null;
+                    this.isPlaying = false;
                     this.alarmInterval = null;
-                }
-                if (this.autoStopTimer) {
-                    clearTimeout(this.autoStopTimer);
                     this.autoStopTimer = null;
+                    this.isMuted = false;
                 }
-                document.getElementById('stop-alarm-btn').style.display = 'none';
-            }
 
-            toggleMute() {
-                this.isMuted = !this.isMuted;
-                if (this.isMuted) {
-                    this.stopAlarm();
-                    document.getElementById('alarm-icon').className = 'fas fa-volume-mute';
-                    document.getElementById('alarm-icon').style.color = '#ef4444';
-                    document.getElementById('alarm-text').textContent = '点击开启';
-                } else {
-                    document.getElementById('alarm-icon').className = 'fas fa-volume-up';
-                    document.getElementById('alarm-icon').style.color = '#10b981';
-                    document.getElementById('alarm-text').textContent = '点击静音';
+                init() {
+                    if (!this.audioCtx) {
+                        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (this.audioCtx.state === 'suspended') {
+                        this.audioCtx.resume();
+                    }
                 }
-                return this.isMuted;
+
+                playSiren() {
+                    if (!this.audioCtx || this.isMuted) return;
+
+                    const now = this.audioCtx.currentTime;
+                    const oscillator = this.audioCtx.createOscillator();
+                    const gainNode = this.audioCtx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioCtx.destination);
+
+                    oscillator.type = 'sine';
+                    gainNode.gain.value = 0.3;
+
+                    oscillator.frequency.setValueAtTime(800, now);
+                    oscillator.frequency.linearRampToValueAtTime(1200, now + 0.15);
+                    oscillator.frequency.linearRampToValueAtTime(800, now + 0.3);
+
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                    oscillator.start(now);
+                    oscillator.stop(now + 0.3);
+                }
+
+                startAlarm() {
+                    this.init();
+
+                    if (this.isPlaying) {
+                        this.resetAutoStop();
+                        return;
+                    }
+
+                    this.isPlaying = true;
+                    document.getElementById('stop-alarm-btn').style.display = 'block';
+                    this.playSiren();
+
+                    this.alarmInterval = setInterval(() => {
+                        this.playSiren();
+                    }, 400);
+
+                    this.resetAutoStop();
+                }
+
+                resetAutoStop() {
+                    if (this.autoStopTimer) {
+                        clearTimeout(this.autoStopTimer);
+                    }
+                    this.autoStopTimer = setTimeout(() => {
+                        this.stopAlarm();
+                    }, 3000);
+                }
+
+                stopAlarm() {
+                    this.isPlaying = false;
+                    if (this.alarmInterval) {
+                        clearInterval(this.alarmInterval);
+                        this.alarmInterval = null;
+                    }
+                    if (this.autoStopTimer) {
+                        clearTimeout(this.autoStopTimer);
+                        this.autoStopTimer = null;
+                    }
+                    document.getElementById('stop-alarm-btn').style.display = 'none';
+                }
+
+                toggleMute() {
+                    this.isMuted = !this.isMuted;
+                    if (this.isMuted) {
+                        this.stopAlarm();
+                        document.getElementById('alarm-icon').className = 'fas fa-volume-mute';
+                        document.getElementById('alarm-icon').style.color = '#ef4444';
+                        document.getElementById('alarm-text').textContent = '点击开启';
+                    } else {
+                        document.getElementById('alarm-icon').className = 'fas fa-volume-up';
+                        document.getElementById('alarm-icon').style.color = '#10b981';
+                        document.getElementById('alarm-text').textContent = '点击静音';
+                    }
+                    return this.isMuted;
+                }
             }
-        }
 
-        // 创建全局报警实例
-        const alarmSound = new AlarmSound();
+            // 创建全局报警实例
+            const alarmSound = new AlarmSound();
 
-        // 点击静音按钮
-        document.getElementById('alarm-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            alarmSound.toggleMute();
-        });
+            // 点击静音按钮
+            document.getElementById('alarm-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                alarmSound.toggleMute();
+            });
 
-        // 点击停止报警按钮
-        document.getElementById('stop-alarm-btn').addEventListener('click', () => {
-            alarmSound.stopAlarm();
-        });
+            // 点击停止报警按钮
+            document.getElementById('stop-alarm-btn').addEventListener('click', () => {
+                alarmSound.stopAlarm();
+            });
 
-        // 初始化 Socket.IO
-        const socket = io();
+            // 初始化 Socket.IO
+            const socket = io();
 
-        socket.on('connect', () => {
-            console.log('Connected to server via WebSocket');
-        });
+            socket.on('connect', () => {
+                console.log('Connected to server via WebSocket');
+            });
 
-        socket.on('new_capture', (data) => {
-            console.log('New capture received:', data);
-            showNotification(data);
-            alarmSound.startAlarm();
-            
-            if (typeof onNewCapture === 'function') {
-                onNewCapture(data);
-            }
-        });
+            socket.on('new_capture', (data) => {
+                console.log('New capture received:', data);
+                showNotification(data);
+                alarmSound.startAlarm();
 
-        function showNotification(data) {
-            const container = document.getElementById('notification-container');
-            const toast = document.createElement('div');
-            toast.className = 'fade-in mb-3';
-            toast.style.cssText = `
+                if (typeof onNewCapture === 'function') {
+                    onNewCapture(data);
+                }
+            });
+
+            function showNotification(data) {
+                const container = document.getElementById('notification-container');
+                const toast = document.createElement('div');
+                toast.className = 'fade-in mb-3';
+                toast.style.cssText = `
                 background: rgba(25, 25, 35, 0.85);
                 backdrop-filter: blur(15px);
                 -webkit-backdrop-filter: blur(15px);
@@ -363,10 +388,10 @@
                 position: relative;
             `;
 
-            toast.innerHTML = `
+                toast.innerHTML = `
                 <div class="d-flex align-items-center mb-2">
                     <div class="rounded-circle bg-danger pulse-glow me-2" style="width: 10px; height: 10px;"></div>
-                    <strong class="me-auto text-primary" style="font-size: 0.9rem;">检测到新违规行为!</strong>
+                    <strong class="me-auto text-primary" style="font-size: 0.9rem;">检测到有人摔倒</strong>
                     <small class="text-muted x-small">${data.camera_id}</small>
                     <button type="button" class="btn-close btn-close-white ms-2" style="font-size: 0.6rem;" onclick="this.parentElement.parentElement.remove()"></button>
                 </div>
@@ -381,118 +406,132 @@
                 <div style="position: absolute; bottom: 0; left: 0; height: 3px; background: var(--primary-color); width: 100%; animation: progress 5s linear forwards;"></div>
             `;
 
-            container.appendChild(toast);
+                container.appendChild(toast);
 
-            // 5秒后自动关闭
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(50px)';
-                toast.style.transition = 'all 0.5s ease';
-                setTimeout(() => toast.remove(), 500);
-            }, 5000);
-        }
-
-        {% if current_user.is_authenticated %}
-        const signatureInput = document.getElementById('signatureInput');
-        const signatureCount = document.getElementById('signatureCount');
-        const saveSignatureBtn = document.getElementById('saveSignatureBtn');
-        const profileSaveHint = document.getElementById('profileSaveHint');
-        const navbarSignature = document.getElementById('navbarSignature');
-
-        if (signatureInput && signatureCount) {
-            signatureInput.addEventListener('input', () => {
-                if (signatureInput.value.length > 30) {
-                    signatureInput.value = signatureInput.value.slice(0, 30);
-                }
-                signatureCount.textContent = `${signatureInput.value.length}/30`;
-            });
-        }
-
-        if (saveSignatureBtn) {
-            saveSignatureBtn.addEventListener('click', async () => {
-                const signature = signatureInput.value.trim();
-                profileSaveHint.className = 'small mt-3 text-secondary';
-                profileSaveHint.textContent = '保存中...';
-                saveSignatureBtn.disabled = true;
-
-                try {
-                    const response = await fetch('{{ url_for("user_mgmt.update_profile") }}', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ signature })
-                    });
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || '保存失败');
-                    }
-
-                    if (navbarSignature) {
-                        navbarSignature.textContent = data.signature || '这个人很神秘，什么都没留下。';
-                    }
-                    profileSaveHint.className = 'small mt-3 text-success';
-                    profileSaveHint.textContent = '保存成功';
-                } catch (error) {
-                    profileSaveHint.className = 'small mt-3 text-danger';
-                    profileSaveHint.textContent = error.message;
-                } finally {
-                    saveSignatureBtn.disabled = false;
-                }
-            });
-        }
-        {% endif %}
-
-        const themeToggleBtn = document.getElementById('themeToggleBtn');
-        const themeToggleIcon = document.getElementById('themeToggleIcon');
-        const themeToggleText = document.getElementById('themeToggleText');
-
-        function updateThemeToggle(theme) {
-            if (!themeToggleBtn || !themeToggleIcon || !themeToggleText) return;
-            const isLight = theme === 'light';
-            themeToggleBtn.setAttribute('aria-pressed', String(isLight));
-            themeToggleIcon.className = isLight ? 'fas fa-moon me-2' : 'fas fa-sun me-2';
-            themeToggleText.textContent = isLight ? '切换黑夜模式' : '切换白天模式';
-        }
-
-        function applyTheme(theme) {
-            document.documentElement.dataset.theme = theme;
-            try {
-                localStorage.setItem('visionguard-theme', theme);
-            } catch (error) {
-                console.warn('Theme persistence unavailable:', error);
+                // 5秒后自动关闭
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(50px)';
+                    toast.style.transition = 'all 0.5s ease';
+                    setTimeout(() => toast.remove(), 500);
+                }, 5000);
             }
-            updateThemeToggle(theme);
-        }
 
-        updateThemeToggle(document.documentElement.dataset.theme || 'dark');
+            {% if current_user.is_authenticated %}
+            const signatureInput = document.getElementById('signatureInput');
+            const signatureCount = document.getElementById('signatureCount');
+            const saveSignatureBtn = document.getElementById('saveSignatureBtn');
+            const profileSaveHint = document.getElementById('profileSaveHint');
+            const navbarSignature = document.getElementById('navbarSignature');
 
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener('click', () => {
-                const nextTheme = (document.documentElement.dataset.theme || 'dark') === 'light' ? 'dark' : 'light';
-                applyTheme(nextTheme);
-            });
-        }
-    </script>
-    
-    <style>
-        @keyframes progress {
-            from { width: 100%; }
-            to { width: 0%; }
-        }
-        
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(239, 68, 68, 0.8); }
-            100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
-        }
-        
-        #alarm-btn:hover .alarm-text-part {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    </style>
-    
-    {% block extra_js %}{% endblock %}
+            if (signatureInput && signatureCount) {
+                signatureInput.addEventListener('input', () => {
+                    if (signatureInput.value.length > 30) {
+                        signatureInput.value = signatureInput.value.slice(0, 30);
+                    }
+                    signatureCount.textContent = `${signatureInput.value.length}/30`;
+                });
+            }
+
+            if (saveSignatureBtn) {
+                saveSignatureBtn.addEventListener('click', async () => {
+                    const signature = signatureInput.value.trim();
+                    profileSaveHint.className = 'small mt-3 text-secondary';
+                    profileSaveHint.textContent = '保存中...';
+                    saveSignatureBtn.disabled = true;
+
+                    try {
+                        const response = await fetch('{{ url_for("user_mgmt.update_profile") }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ signature })
+                        });
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.error || '保存失败');
+                        }
+
+                        if (navbarSignature) {
+                            navbarSignature.textContent = data.signature || '这个人很神秘，什么都没留下。';
+                        }
+                        profileSaveHint.className = 'small mt-3 text-success';
+                        profileSaveHint.textContent = '保存成功';
+                    } catch (error) {
+                        profileSaveHint.className = 'small mt-3 text-danger';
+                        profileSaveHint.textContent = error.message;
+                    } finally {
+                        saveSignatureBtn.disabled = false;
+                    }
+                });
+            }
+            {% endif %}
+
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const themeToggleIcon = document.getElementById('themeToggleIcon');
+            const themeToggleText = document.getElementById('themeToggleText');
+
+            function updateThemeToggle(theme) {
+                if (!themeToggleBtn || !themeToggleIcon || !themeToggleText) return;
+                const isLight = theme === 'light';
+                themeToggleBtn.setAttribute('aria-pressed', String(isLight));
+                themeToggleIcon.className = isLight ? 'fas fa-moon me-2' : 'fas fa-sun me-2';
+                themeToggleText.textContent = isLight ? '切换黑夜模式' : '切换白天模式';
+            }
+
+            function applyTheme(theme) {
+                document.documentElement.dataset.theme = theme;
+                try {
+                    localStorage.setItem('visionguard-theme', theme);
+                } catch (error) {
+                    console.warn('Theme persistence unavailable:', error);
+                }
+                updateThemeToggle(theme);
+            }
+
+            updateThemeToggle(document.documentElement.dataset.theme || 'dark');
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const nextTheme = (document.documentElement.dataset.theme || 'dark') === 'light' ? 'dark' : 'light';
+                    applyTheme(nextTheme);
+                });
+            }
+        </script>
+
+        <style>
+            @keyframes progress {
+                from {
+                    width: 100%;
+                }
+
+                to {
+                    width: 0%;
+                }
+            }
+
+            @keyframes pulse-border {
+                0% {
+                    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+                }
+
+                50% {
+                    box-shadow: 0 0 40px rgba(239, 68, 68, 0.8);
+                }
+
+                100% {
+                    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+                }
+            }
+
+            #alarm-btn:hover .alarm-text-part {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        </style>
+
+        {% block extra_js %}{% endblock %}
     </div>
 </body>
+
 </html>

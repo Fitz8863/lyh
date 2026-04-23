@@ -1,5 +1,5 @@
 from flask_login import login_required, current_user
-from flask import Blueprint, render_template, request, jsonify, make_response, abort
+from flask import Blueprint, render_template, request, jsonify, make_response, abort, current_app
 from . import db, login_manager
 from .models import MqttConfig
 from .auth import admin_required
@@ -61,7 +61,7 @@ def mqtt_connect():
             topic_prefix='rk3588lyh/camera'
         )
         
-        success = mqtt_module.mqtt_manager.connect()
+        success = mqtt_module.mqtt_manager.connect(app=current_app._get_current_object())
         
         if success:
             if save:
