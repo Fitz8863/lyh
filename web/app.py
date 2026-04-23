@@ -22,7 +22,6 @@ from blueprints.mqtt_manager import init_mqtt
 init_db(app)
 init_mqtt(app)
 
-
 from blueprints.main import main_bp
 from blueprints.auth import auth_bp
 from blueprints.capture import capture_bp

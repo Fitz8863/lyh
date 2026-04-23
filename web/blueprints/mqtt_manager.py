@@ -1,7 +1,8 @@
 import json
 import time
+import threading
 import paho.mqtt.client as mqtt
-from flask import jsonify
+from flask import jsonify, current_app
 
 class MQTTManager:
     def __init__(self, broker, port, username='', password='', topic_prefix='RK3588/camera'):
@@ -39,8 +40,8 @@ class MQTTManager:
         if rc == 0:
             self.connected = True
             print("MQTT连接成功")
-            # 订阅设备信息主题
             client.subscribe("rk3588lyh/info")
+            client.subscribe("rk3588lyh/001/report")
         else:
             self.connected = False
             print(f"MQTT连接失败, 返回码: {rc}")
@@ -64,14 +65,53 @@ class MQTTManager:
                     'raw_payload': payload
                 }
                 
-                # 兼容旧逻辑
                 self.latest_jetson_info = normalized_data
                 self.last_info_time = time.time()
-                self.connected = True  # 收到消息说明连接肯定正常
+                self.connected = True
                 
-                # print(f"收到设备心跳: {device_id}, 摄像头: {camera_info.get('id', 'unknown')} @ {camera_info.get('location', 'unknown')}")
             except Exception as e:
                 print(f"解析 rk3588lyh/info 消息失败: {e}")
+        
+        elif msg.topic == "rk3588lyh/001/report":
+            try:
+                payload = json.loads(msg.payload.decode('utf-8'))
+                detection = payload.get('detection', '')
+                
+                if detection == 'falldown':
+                    threading.Thread(
+                        target=self._send_fall_alert_email,
+                        args=(payload,),
+                        daemon=True
+                    ).start()
+                    print(f"检测到跌倒事件，已触发邮件告警: {payload}")
+            except Exception as e:
+                print(f"解析 rk3588lyh/001/report 消息失败: {e}")
+    
+    def _send_fall_alert_email(self, data):
+        try:
+            from flask_mail import Message
+            from exts import mail
+            
+            device_id = data.get('device_id', 'unknown')
+            camera_id = data.get('camera_id', 'unknown')
+            count = data.get('count', 0)
+            
+            subject = "跌倒告警通知"
+            body = f"跌倒告警通知\n\n设备ID: {device_id}\n摄像头ID: {camera_id}\n检测次数: {count}\n\n请及时处理！"
+            
+            from app import app
+            with app.app_context():
+                target_emails = app.config.get('TARGET_EMAIL', [])
+                sender = app.config.get('MAIL_DEFAULT_SENDER')
+                
+                if target_emails and sender:
+                    msg = Message(subject, recipients=target_emails, body=body)
+                    mail.send(msg)
+                    print(f"跌倒告警邮件已发送至: {target_emails}")
+                else:
+                    print("未配置目标邮箱，跳过邮件发送")
+        except Exception as e:
+            print(f"发送跌倒告警邮件失败: {e}")
             
     def _on_disconnect(self, client, userdata, rc):
         self.connected = False
