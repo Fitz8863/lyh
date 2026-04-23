@@ -16,6 +16,11 @@ find_package(yaml-cpp REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GST REQUIRED gstreamer-1.0 gstreamer-app-1.0)
 
+find_library(CURL_LIBRARY NAMES curl PATHS /usr/lib/aarch64-linux-gnu /usr/lib /usr/local/lib)
+if(NOT CURL_LIBRARY)
+    message(FATAL_ERROR "libcurl not found")
+endif()
+
 find_library(MQTT_LIBRARY NAMES paho-mqtt3a paho-mqtt3c paho-mqtt3as paho-mqtt3cs PATHS /usr/local/lib)
 if(NOT MQTT_LIBRARY)
     message(FATAL_ERROR "MQTT library not found")
@@ -40,6 +45,7 @@ target_link_libraries(main
     ${LIBRGA}
     ${OpenCV_LIBS}
     ${MQTT_LIBRARY}
+    ${CURL_LIBRARY}
     paho-mqttpp3
     yaml-cpp
     ${GST_LIBRARIES}

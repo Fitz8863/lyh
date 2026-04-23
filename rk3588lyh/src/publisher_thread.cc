@@ -1,6 +1,7 @@
 #include "publisher_thread.h"
 #include "postprocess.h"
 #include <mqtt/async_client.h>
+#include <curl/curl.h>
 #include <iostream>
 #include <chrono>
 #include <sstream>
@@ -9,9 +10,10 @@
 PublisherThread::PublisherThread(CameraStatus& status,
                                  const std::string& device_id,
                                  const std::string& server, const std::string& topic, int interval_ms,
-                                 const std::string& report_topic)
+                                 const std::string& report_topic,
+                                 const std::string& http_report_url)
     : status_(status), device_id_(device_id), server_(server), topic_(topic), 
-      report_topic_(report_topic), interval_ms_(interval_ms),
+      report_topic_(report_topic), http_report_url_(http_report_url), interval_ms_(interval_ms),
       running_(false), connected_(false) {}
 
 PublisherThread::~PublisherThread() {
@@ -94,6 +96,75 @@ std::string PublisherThread::BuildDetectionMessage(const object_detect_result_li
     return oss.str();
 }
 
+bool PublisherThread::SendHttpReport(const std::vector<uint8_t>& jpeg_data, int target_class_id) {
+    if (http_report_url_.empty() || jpeg_data.empty()) {
+        return false;
+    }
+
+    CURL* curl = curl_easy_init();
+    if (!curl) {
+        std::cerr << "[HTTP] Failed to initialize curl" << std::endl;
+        return false;
+    }
+
+    bool success = false;
+    try {
+        std::string violation_type = coco_cls_to_name(target_class_id);
+        
+        curl_mime* mime = curl_mime_init(curl);
+        
+        curl_mimepart* file_part = curl_mime_addpart(mime);
+        curl_mime_name(file_part, "file");
+        curl_mime_filename(file_part, "capture.jpg");
+        curl_mime_type(file_part, "image/jpeg");
+        curl_mime_data(file_part, reinterpret_cast<const char*>(jpeg_data.data()), jpeg_data.size());
+        
+        curl_mimepart* camera_part = curl_mime_addpart(mime);
+        curl_mime_name(camera_part, "camera_id");
+        curl_mime_data(camera_part, status_.camera_id.c_str(), CURL_ZERO_TERMINATED);
+        
+        curl_mimepart* location_part = curl_mime_addpart(mime);
+        curl_mime_name(location_part, "location");
+        curl_mime_data(location_part, status_.location.c_str(), CURL_ZERO_TERMINATED);
+        
+        curl_mimepart* violation_part = curl_mime_addpart(mime);
+        curl_mime_name(violation_part, "violation_type");
+        curl_mime_data(violation_part, violation_type.c_str(), CURL_ZERO_TERMINATED);
+        
+        curl_easy_setopt(curl, CURLOPT_URL, http_report_url_.c_str());
+        curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
+        curl_easy_setopt(curl, CURLOPT_PROXY, "");
+        
+        CURLcode res = curl_easy_perform(curl);
+        if (res == CURLE_OK) {
+            long response_code = 0;
+            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+            std::cout << "[HTTP] Report sent to " << http_report_url_ 
+                      << " violation_type=" << violation_type
+                      << " camera_id=" << status_.camera_id
+                      << " response_code=" << response_code << std::endl;
+            success = (response_code >= 200 && response_code < 300);
+            if (!success) {
+                std::cerr << "[HTTP] Server returned error response_code=" << response_code << std::endl;
+            }
+        } else if (res == CURLE_OPERATION_TIMEDOUT) {
+            std::cerr << "[HTTP] Request timeout (5s) to " << http_report_url_ 
+                      << " violation_type=" << violation_type
+                      << " camera_id=" << status_.camera_id << std::endl;
+        } else {
+            std::cerr << "[HTTP] Request failed: " << curl_easy_strerror(res) << std::endl;
+        }
+        
+        curl_mime_free(mime);
+    } catch (const std::exception& e) {
+        std::cerr << "[HTTP] Exception: " << e.what() << std::endl;
+    }
+    
+    curl_easy_cleanup(curl);
+    return success;
+}
+
 void PublisherThread::Run() {
     try {
         client_ = std::make_unique<mqtt::async_client>(server_, "rk3588_pub");
@@ -121,11 +192,16 @@ void PublisherThread::Run() {
                 int target_class_id = -1;
                 int match_frames = 0;
                 int success_count = 0;
-                if (status_.ConsumeDetectionReport(report_results, target_class_id, match_frames, success_count)) {
+                std::vector<uint8_t> jpeg_data;
+                if (status_.ConsumeDetectionReport(report_results, target_class_id, match_frames, success_count, jpeg_data)) {
                     std::string det_payload = BuildDetectionMessage(report_results, target_class_id, match_frames, success_count);
                     if (!det_payload.empty()) {
                         auto det_msg = mqtt::make_message(report_topic_, det_payload, 1, false);
                         client_->publish(det_msg)->wait();
+                    }
+                    
+                    if (!http_report_url_.empty() && !jpeg_data.empty()) {
+                        SendHttpReport(jpeg_data, target_class_id);
                     }
                 }
             }

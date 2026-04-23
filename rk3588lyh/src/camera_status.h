@@ -4,6 +4,7 @@
 #include <atomic>
 #include <mutex>
 #include <string>
+#include <vector>
 #include <chrono>
 #include "postprocess.h"
 
@@ -29,6 +30,7 @@ struct CameraStatus {
     int pending_report_target_class_id = -1;
     int pending_report_match_frames = 0;
     int pending_report_success_count = 0;
+    std::vector<uint8_t> pending_report_jpeg_data;
     std::atomic<bool> has_pending_report{false};
     
     CameraStatus() : fps(0.0f), width(1920), height(1080), running(true), timestamp_ns(0) {}
@@ -65,16 +67,17 @@ struct CameraStatus {
         return detect_results;
     }
 
-    void QueueDetectionReport(const object_detect_result_list& results, int target_class_id, int match_frames, int success_count) {
+    void QueueDetectionReport(const object_detect_result_list& results, int target_class_id, int match_frames, int success_count, const std::vector<uint8_t>& jpeg_data) {
         std::lock_guard<std::mutex> lock(report_mutex);
         pending_report_results = results;
         pending_report_target_class_id = target_class_id;
         pending_report_match_frames = match_frames;
         pending_report_success_count = success_count;
+        pending_report_jpeg_data = jpeg_data;
         has_pending_report.store(true);
     }
 
-    bool ConsumeDetectionReport(object_detect_result_list& results, int& target_class_id, int& match_frames, int& success_count) {
+    bool ConsumeDetectionReport(object_detect_result_list& results, int& target_class_id, int& match_frames, int& success_count, std::vector<uint8_t>& jpeg_data) {
         std::lock_guard<std::mutex> lock(report_mutex);
         if (!has_pending_report.load()) {
             return false;
@@ -83,6 +86,8 @@ struct CameraStatus {
         target_class_id = pending_report_target_class_id;
         match_frames = pending_report_match_frames;
         success_count = pending_report_success_count;
+        jpeg_data = pending_report_jpeg_data;
+        pending_report_jpeg_data.clear();
         has_pending_report.store(false);
         return true;
     }

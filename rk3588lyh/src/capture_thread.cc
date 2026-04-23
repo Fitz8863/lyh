@@ -181,6 +181,10 @@ void CaptureThread::Run()
             object_detect_result_list results;
             if (detector_->retrieve(annotated_frame, results))
             {
+                draw_results(annotated_frame, results);
+                DrawFpsOverlay(annotated_frame, current_fps);
+                status_.SetDetectResults(results);
+                
                 if (trigger_enabled)
                 {
                     const bool current_frame_has_target = ContainsTargetClass(results, trigger_config_.target_class_id);
@@ -246,7 +250,13 @@ void CaptureThread::Run()
 
                         if (trigger_success_count >= trigger_config_.trigger_count)
                         {
-                            status_.QueueDetectionReport(last_matching_results, trigger_config_.target_class_id, trigger_window_match_frames, trigger_success_count);
+                            std::vector<uint8_t> jpeg_buffer;
+                            std::vector<int> jpeg_params = {cv::IMWRITE_JPEG_QUALITY, 90};
+                            if (!cv::imencode(".jpg", annotated_frame, jpeg_buffer, jpeg_params))
+                            {
+                                std::cerr << "[Trigger] Failed to encode frame to JPEG" << std::endl;
+                            }
+                            status_.QueueDetectionReport(last_matching_results, trigger_config_.target_class_id, trigger_window_match_frames, trigger_success_count, jpeg_buffer);
                             std::cout << "[Trigger] MQTT report queued: target_class_id="
                                       << trigger_config_.target_class_id
                                       << " elapsed=" << trigger_elapsed << "s"
@@ -254,6 +264,7 @@ void CaptureThread::Run()
                                       << " stage_match_frames=" << trigger_stage_match_frames
                                       << " success_count=" << trigger_success_count
                                       << "/" << trigger_config_.trigger_count
+                                      << " jpeg_size=" << jpeg_buffer.size() << " bytes"
                                       << " => reached trigger_count=" << trigger_config_.trigger_count
                                       << ", closing current window" << std::endl;
                             trigger_window_active = false;
@@ -264,9 +275,6 @@ void CaptureThread::Run()
                     }
                 }
 
-                draw_results(annotated_frame, results);
-                DrawFpsOverlay(annotated_frame, current_fps);
-                status_.SetDetectResults(results);
                 writer << annotated_frame;
             }
             else

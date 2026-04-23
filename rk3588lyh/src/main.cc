@@ -63,6 +63,7 @@ int main()
 
     YoloDetector *detector = nullptr;
     std::string mqtt_report_topic;
+    std::string http_report_url;
     DetectionTriggerConfig trigger_config;
 
     if (use_yolo)
@@ -80,6 +81,10 @@ int main()
             trigger_config.target_class_id = det_cfg["target_class_id"].as<int>();
             trigger_config.frame_threshold = det_cfg["frame_threshold"].as<int>();
             trigger_config.trigger_count = det_cfg["trigger_count"].as<int>();
+            mqtt_report_topic = det_cfg["mqtt_report_topic"].as<std::string>();
+            if (det_cfg["http_report_url"]) {
+                http_report_url = det_cfg["http_report_url"].as<std::string>();
+            }
             trigger_config.enabled = trigger_config.window_seconds > 0 &&
                                      trigger_config.frame_threshold > 0 &&
                                      trigger_config.trigger_count > 0 &&
@@ -111,7 +116,7 @@ int main()
     CaptureThread capture_thread(camera_status, device, width, height, fps, rtsp_url, detector, trigger_config);
     capture_thread.Start();
 
-    PublisherThread publisher(camera_status, device_id, mqtt_server, mqtt_topic, heart_rate_ms, mqtt_report_topic);
+    PublisherThread publisher(camera_status, device_id, mqtt_server, mqtt_topic, heart_rate_ms, mqtt_report_topic, http_report_url);
     publisher.Start();
 
     std::cout << "所有服务已启动，按 Ctrl+C 退出..." << std::endl;
