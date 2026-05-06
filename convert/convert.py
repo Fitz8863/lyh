@@ -2,7 +2,7 @@ import sys
 from rknn.api import RKNN
 
 DATASET_PATH = '/home/fitz/projects/ultralytics/convert/datasets.txt'
-DEFAULT_RKNN_PATH = '/home/fitz/projects/ultralytics/convert/yolov8s_falldown_75/weights/best_int8.rknn'
+DEFAULT_RKNN_PATH = '/home/fitz/projects/lyh/convert/yolov8s_humanaction_250/weights/best_int8.rknn'
 DEFAULT_QUANT = True
 # rk3588
 def parse_arg():

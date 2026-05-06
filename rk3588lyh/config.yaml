@@ -23,7 +23,7 @@ camera:
     target_class_id: 0  # 目标要判断的类对应id
     frame_threshold: 20 # 判断窗口下帧的阈值
     trigger_count: 3
-    model_path: "/home/cat/lyh/convert/yolov8s_falldown_75/weights/best_int8.rknn"
+    model_path: "../convert/yolov8s_humanaction_250/weights/best_int8.rknn"
     mqtt_report_topic: "rk3588lyh/001/report"
     http_report_url: "http://10.33.110.151:5002/capture/upload"
     confidence_threshold: 0.50

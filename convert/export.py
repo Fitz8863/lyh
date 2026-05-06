@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 # 加载你训练好的模型
-model = YOLO("/home/fitz/projects/ultralytics/results/yolov8s_falldown_75/weights/best.pt")
+model = YOLO("/home/fitz/projects/lyh/convert/yolov8s_humanaction_250/weights/best.pt")
 
 # 开始导出
 model.export(
