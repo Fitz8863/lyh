@@ -1,1 +1,4 @@
 falldown
+sitting
+standing
+walking

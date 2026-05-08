@@ -78,7 +78,7 @@ int rknnPool<rknnModel, inputType, outputType>::init()
             core = CORE_2;
             break;
         default:
-            core = CORE_0;
+            core = CORE_ALL;
             break;
         }
         std::cout << "Model " << i << " assigned to NPU core " << core_num << std::endl;
