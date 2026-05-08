@@ -26,6 +26,7 @@
 #include <vector>
 #define LABEL_NALE_TXT_PATH "/home/cat/lyh/rk3588lyh/model/coco_80_labels_list.txt"
 
+static int g_obj_class_num = OBJ_CLASS_NUM;  // 运行时类别数，默认为 OBJ_CLASS_NUM
 static char* labels[OBJ_CLASS_NUM];
 
 inline static int clamp(float val, int min, int max) { return val > min ? (val < max ? val : max) : min; }
@@ -254,7 +255,7 @@ static int process_u8(uint8_t* box_tensor, int32_t box_zp, float box_scale,
             }
 
             uint8_t max_score = -score_zp;
-            for (int c = 0; c < OBJ_CLASS_NUM; c++)
+            for (int c = 0; c < g_obj_class_num; c++)
             {
                 if ((score_tensor[offset] > score_thres_u8) && (score_tensor[offset] > max_score))
                 {
@@ -327,7 +328,7 @@ static int process_i8(int8_t* box_tensor, int32_t box_zp, float box_scale,
             }
 
             int8_t max_score = -score_zp;
-            for (int c = 0; c < OBJ_CLASS_NUM; c++) {
+            for (int c = 0; c < g_obj_class_num; c++) {
                 if ((score_tensor[offset] > score_thres_i8) && (score_tensor[offset] > max_score))
                 {
                     max_score = score_tensor[offset];
@@ -392,7 +393,7 @@ static int process_fp32(float* box_tensor, float* score_tensor, float* score_sum
             }
 
             float max_score = 0;
-            for (int c = 0; c < OBJ_CLASS_NUM; c++) {
+            for (int c = 0; c < g_obj_class_num; c++) {
                 if ((score_tensor[offset] > threshold) && (score_tensor[offset] > max_score))
                 {
                     max_score = score_tensor[offset];
@@ -542,8 +543,9 @@ int post_process(rknn_app_context_t* app_ctx, void* outputs, letterbox_t* letter
     return 0;
 }
 
-int init_post_process()
+int init_post_process(int obj_class_num)
 {
+    g_obj_class_num = obj_class_num;
     int ret = 0;
     ret = loadLabelName(LABEL_NALE_TXT_PATH, labels);
     if (ret < 0)

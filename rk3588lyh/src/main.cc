@@ -77,6 +77,8 @@ int main()
             float nms_threshold = det_cfg["nms_threshold"].as<float>();
             float box_conf_threshold = det_cfg["confidence_threshold"].as<float>();
 
+            int obj_class_num = det_cfg["obj_class_num"].as<int>();
+
             trigger_config.window_seconds = det_cfg["window_seconds"].as<int>();
             trigger_config.target_class_id = det_cfg["target_class_id"].as<int>();
             trigger_config.frame_threshold = det_cfg["frame_threshold"].as<int>();
@@ -90,7 +92,7 @@ int main()
                                      trigger_config.trigger_count > 0 &&
                                      trigger_config.target_class_id >= 0;
 
-            detector = new YoloDetector(model_path, thread_num, nms_threshold, box_conf_threshold);
+            detector = new YoloDetector(model_path, thread_num, nms_threshold, box_conf_threshold, obj_class_num);
             int ret = detector->init();
             if (ret != 0)
             {

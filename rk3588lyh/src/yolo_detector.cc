@@ -14,18 +14,20 @@ struct YoloDetector::Impl {
     float nms_threshold;
     float box_conf_threshold;
     int thread_num;
+    int obj_class_num;
     std::queue<FrameTask> pending_frames;
     int max_pending;
     rknnPool<rkYolov8, image_buffer_t*, object_detect_result_list>* pool;
 };
 
-YoloDetector::YoloDetector(const std::string& model_path, int thread_num,float nms_threshold,float box_conf_threshold)
+YoloDetector::YoloDetector(const std::string& model_path, int thread_num, float nms_threshold, float box_conf_threshold, int obj_class_num)
+    : impl(new Impl())
 {
-    impl = new Impl();
     impl->model_path = model_path;
     impl->thread_num = thread_num;
     impl->box_conf_threshold = box_conf_threshold;
     impl->nms_threshold = nms_threshold;
+    impl->obj_class_num = obj_class_num;
     impl->max_pending = thread_num;
     impl->pool = nullptr;
 }
@@ -42,7 +44,7 @@ YoloDetector::~YoloDetector()
 
 int YoloDetector::init()
 {
-    init_post_process();
+    init_post_process(impl->obj_class_num);
 
     impl->pool = new rknnPool<rkYolov8, image_buffer_t*, object_detect_result_list>(
         impl->model_path, impl->thread_num, impl->nms_threshold, impl->box_conf_threshold);

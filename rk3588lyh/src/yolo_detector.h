@@ -8,7 +8,7 @@
 class YoloDetector
 {
 public:
-    YoloDetector(const std::string& model_path, int thread_num = 3,float nms_threshold = 0.45,float box_conf_threshold = 0.25);
+    YoloDetector(const std::string& model_path, int thread_num = 3, float nms_threshold = 0.45, float box_conf_threshold = 0.25, int obj_class_num = OBJ_CLASS_NUM);
     ~YoloDetector();
 
     int init();
